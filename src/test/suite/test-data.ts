@@ -5,6 +5,13 @@ export const NUMBERS = `
 2
 4`.trim();
 
+export const NUMBERS_WITH_TEXT = `
+1a
+2a
+3a
+2a
+4a`.trim();
+
 export const MORE_NUMBERS = `
 0
 1
@@ -18,4 +25,5 @@ export const MORE_NUMBERS = `
 2
 4`.trim();
 
-export const LIPSUM = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus et feugiat libero. Curabitur porttitor';
+export const LIPSUM =
+  "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus et feugiat libero. Curabitur porttitor";

@@ -1,9 +1,13 @@
-import { IConfiguration, GivenConfiguration } from '../../configuration';
-import { ExtensionSettings, DEFAULT_SETTINGS, SavedSearch, SavedContext, IDependencyRegistry } from '../../di';
-import { IStorage, GivenStorage } from '../../storage';
+import { IConfiguration, GivenConfiguration } from "../../configuration";
+import {
+  ExtensionSettings,
+  DEFAULT_SETTINGS,
+  SavedSearch,
+  IDependencyRegistry,
+} from "../../di";
+import { IStorage, GivenStorage } from "../../storage";
 
 class TestDependencyRegistry implements IDependencyRegistry {
-
   private fakeSettings!: ExtensionSettings;
 
   // @override
@@ -11,9 +15,6 @@ class TestDependencyRegistry implements IDependencyRegistry {
 
   // @override
   searchStorage!: IStorage<SavedSearch>;
-
-  // @override
-  contextStorage!: IStorage<SavedContext>;
 
   constructor() {
     this.reset();
@@ -23,8 +24,7 @@ class TestDependencyRegistry implements IDependencyRegistry {
     this.fakeSettings = { ...DEFAULT_SETTINGS };
 
     this.configuration = new GivenConfiguration(this.fakeSettings);
-    this.searchStorage = new GivenStorage({ latestSearch: '' });
-    this.contextStorage = new GivenStorage({ latestContext: '' });
+    this.searchStorage = new GivenStorage({ latestSearch: "" });
   }
 
   /**
@@ -42,12 +42,17 @@ class TestDependencyRegistry implements IDependencyRegistry {
    *
    * Of course, you can update/clear multiple settings at once.
    */
-  updateSettings(settings: Partial<{[K in keyof ExtensionSettings]: ExtensionSettings[K]|undefined}>): void {
+  updateSettings(
+    settings: Partial<{
+      [K in keyof ExtensionSettings]: ExtensionSettings[K] | undefined;
+    }>
+  ): void {
     for (const _key in settings)
       if (settings.hasOwnProperty(_key)) {
         const key = _key as keyof ExtensionSettings;
         const value = settings[key];
-        this.fakeSettings[key] = value !== undefined ? value : DEFAULT_SETTINGS[key];
+        this.fakeSettings[key] =
+          value !== undefined ? value : DEFAULT_SETTINGS[key];
       }
   }
 }

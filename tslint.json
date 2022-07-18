@@ -1,5 +1,4 @@
 {
-  "extends": ["@earshinov/tslint-rules"],
-  "rules": {
-  }
+  "extends": ["@doctorgu/tslint-rules"],
+  "rules": {}
 }

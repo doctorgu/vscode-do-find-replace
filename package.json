@@ -4,10 +4,10 @@
   "description": "Quickly find all lines matching a string or regular expression",
   "icon": "doc/logo.png",
   "version": "1.0.0",
-  "publisher": "earshinov",
+  "publisher": "doctorgu",
   "repository": {
     "type": "git",
-    "url": "https://github.com/earshinov/vscode-filter-lines"
+    "url": "https://github.com/doctorgu/vscode-filter-lines-2"
   },
   "license": "MIT",
   "engines": {
@@ -17,14 +17,9 @@
     "Other"
   ],
   "activationEvents": [
+    "onCommand:filterlines.includeLinesWithRegexMatched",
+    "onCommand:filterlines.includeLinesWithRegexMatchedGroup",
     "onCommand:filterlines.includeLinesWithRegex",
-    "onCommand:filterlines.includeLinesWithString",
-    "onCommand:filterlines.excludeLinesWithRegex",
-    "onCommand:filterlines.excludeLinesWithString",
-    "onCommand:filterlines.includeLinesWithRegexAndContext",
-    "onCommand:filterlines.includeLinesWithStringAndContext",
-    "onCommand:filterlines.excludeLinesWithRegexAndContext",
-    "onCommand:filterlines.excludeLinesWithStringAndContext",
     "onCommand:filterlines.promptFilterLines",
     "onCommand:filterlines.filterLines"
   ],
@@ -32,58 +27,33 @@
   "contributes": {
     "commands": [
       {
+        "title": "Filter Lines: Include Lines with Regex Matched",
+        "command": "filterlines.includeLinesWithRegexMatched"
+      },
+      {
+        "title": "Filter Lines: Include Lines with Regex Matched Group",
+        "command": "filterlines.includeLinesWithRegexMatchedGroup"
+      },
+      {
         "title": "Filter Lines: Include Lines with Regex",
         "command": "filterlines.includeLinesWithRegex"
-      },
-      {
-        "title": "Filter Lines: Include Lines with String",
-        "command": "filterlines.includeLinesWithString"
-      },
-      {
-        "title": "Filter Lines: Exclude Lines with Regex",
-        "command": "filterlines.excludeLinesWithRegex"
-      },
-      {
-        "title": "Filter Lines: Exclude Lines with String",
-        "command": "filterlines.excludeLinesWithString"
-      },
-      {
-        "title": "Filter Lines: Include Lines with Regex and Context",
-        "command": "filterlines.includeLinesWithRegexAndContext"
-      },
-      {
-        "title": "Filter Lines: Include Lines with String and Context",
-        "command": "filterlines.includeLinesWithStringAndContext"
-      },
-      {
-        "title": "Filter Lines: Exclude Lines with Regex and Context",
-        "command": "filterlines.excludeLinesWithRegexAndContext"
-      },
-      {
-        "title": "Filter Lines: Exclude Lines with String and Context",
-        "command": "filterlines.excludeLinesWithStringAndContext"
       }
     ],
     "keybindings": [
       {
-        "command": "filterlines.includeLinesWithRegex",
+        "command": "filterlines.includeLinesWithRegexMatched",
         "key": "ctrl-k ctrl-r",
         "mac": "cmd-k cmd-r"
       },
       {
-        "command": "filterlines.includeLinesWithString",
-        "key": "ctrl-k ctrl-s",
-        "mac": "cmd-k cmd-s"
+        "command": "filterlines.includeLinesWithRegexMatchedGroup",
+        "key": "ctrl-k ctrl-g",
+        "mac": "cmd-k cmd-g"
       }
     ],
     "configuration": {
       "title": "Filter Lines",
       "properties": {
-        "filterlines.caseSensitiveStringSearch": {
-          "type": "boolean",
-          "default": false,
-          "description": "If true, string searches are case-sensitive"
-        },
         "filterlines.caseSensitiveRegexSearch": {
           "type": "boolean",
           "default": true,
@@ -103,16 +73,6 @@
           "type": "boolean",
           "default": true,
           "description": "Create new tab for filter results"
-        },
-        "filterlines.indentContext": {
-          "type": "boolean",
-          "default": true,
-          "description": "Indent context lines"
-        },
-        "filterlines.foldIndentedContext": {
-          "type": "boolean",
-          "default": true,
-          "description": "Fold indented context lines"
         }
       }
     }
@@ -140,7 +100,7 @@
     "@babel/preset-env": "^7.1.6",
     "@babel/preset-typescript": "^7.7.2",
     "@babel/register": "^7.0.0",
-    "@earshinov/tslint-rules": "earshinov/tslint-rules#v1.0.0",
+    "@doctorgu/tslint-rules": "doctorgu/tslint-rules#v1.0.0",
     "@types/assert": "^1.4.7",
     "@types/glob": "^7.1.2",
     "@types/mocha": "^7.0.2",
