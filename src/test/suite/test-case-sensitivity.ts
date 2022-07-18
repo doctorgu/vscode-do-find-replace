@@ -14,7 +14,7 @@ suite("Case sensitivity", () => {
       caseSensitiveRegexSearch: true,
     }); // defaults
 
-    await invokeFilterLines("filterlines.includeLinesWithRegex", "Ipsum");
+    await invokeFilterLines("filterlines.includeLine", "Ipsum");
     assert.equal(editor.document.getText().trim(), "");
 
     editor = await reopenEditor();
@@ -24,7 +24,7 @@ suite("Case sensitivity", () => {
       caseSensitiveRegexSearch: false,
     });
 
-    await invokeFilterLines("filterlines.includeLinesWithRegex", "Ipsum");
+    await invokeFilterLines("filterlines.includeLine", "Ipsum");
     assert.notEqual(editor.document.getText().trim(), "");
   });
 });

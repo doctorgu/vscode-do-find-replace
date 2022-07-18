@@ -17,11 +17,11 @@ It is basically a port of [Filter Lines][filter lines (sublime text plugin)] pac
 
 All of the following commands are available via Ctrl-Shift-P.
 
-| Command                                              | Default keybinding |
-| ---------------------------------------------------- | ------------------ |
-| Filter Lines: Include Lines with Regex Matched       | Ctrl-K Ctrl-R \*   |
-| Filter Lines: Include Lines with Regex Matched Group | Ctrl-K Ctrl-G \*   |
-| Filter Lines: Include Lines with Regex               |                    |
+| Command                             | Default keybinding |
+| ----------------------------------- | ------------------ |
+| Filter Lines: Include Matched       | Ctrl-K Ctrl-R \*   |
+| Filter Lines: Include Matched Group | Ctrl-K Ctrl-G \*   |
+| Filter Lines: Include Line          |                    |
 
 \* Use <kbd>cmd</kbd> instead of <kbd>ctrl</kbd> on Mac
 
@@ -45,17 +45,17 @@ If you are using Settings UI, you will find these settings under "Filter Lines" 
 
 You can use these command ids to make your own keybindings.
 
-### # `filterlines.includeLinesWithRegexMatched`
+### # `filterlines.includeMatched`
 
-Implements the "Filter Lines: Include Lines with Regex" command with output of only matched. Takes no arguments.
+Implements the "Filter Lines: Include Line" command with output of only matched. Takes no arguments.
 
-### # `filterlines.includeLinesWithRegexMatchedGroup`
+### # `filterlines.includeMatchedGroup`
 
-Implements the "Filter Lines: Include Lines with Regex" command with output of only matched group(s). Takes no arguments.
+Implements the "Filter Lines: Include Line" command with output of only matched group(s). Takes no arguments.
 
-### # `filterlines.includeLinesWithRegex`
+### # `filterlines.includeLine`
 
-Implements the "Filter Lines: Include Lines with Regex" command. Takes no arguments.
+Implements the "Filter Lines: Include Line" command. Takes no arguments.
 
 | Argument        | Possible values                      | Default value | Description                                                                                                                           |
 | --------------- | ------------------------------------ | ------------- | ------------------------------------------------------------------------------------------------------------------------------------- |

@@ -120,9 +120,9 @@ export function untilStable(): Promise<void> {
 }
 
 export type FilterLinesCommand =
-  | "filterlines.includeLinesWithRegexMatched"
-  | "filterlines.includeLinesWithRegexMatchedGroup"
-  | "filterlines.includeLinesWithRegex";
+  | "filterlines.includeMatched"
+  | "filterlines.includeMatchedGroup"
+  | "filterlines.includeLine";
 
 /**
  * Invoke one of "Filter Lines" commands

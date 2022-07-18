@@ -11,7 +11,7 @@ suite("New tab", async () => {
 
     let editor = vscode.window.activeTextEditor!;
     await setEditorText(editor, NUMBERS);
-    await invokeFilterLines("filterlines.includeLinesWithRegex", "2");
+    await invokeFilterLines("filterlines.includeLine", "2");
 
     assert.equal(vscode.workspace.textDocuments.length, 2);
     editor = vscode.window.activeTextEditor!;

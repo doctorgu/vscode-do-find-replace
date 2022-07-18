@@ -36,7 +36,7 @@ export function activate(
     // Provide wrapper commands to be bound in package.json > "contributes" > "commands".
     // If one command is bound several times with different "args", VS Code only displays the last entry in the Ctrl-Shift-P menu.
     vscode.commands.registerTextEditorCommand(
-      "filterlines.includeLinesWithRegexMatched",
+      "filterlines.includeMatched",
       catchErrors((editor, edit, args) => {
         const args_: PromptFilterLinesArgs = {
           invert_search: false,
@@ -46,7 +46,7 @@ export function activate(
       })
     ),
     vscode.commands.registerTextEditorCommand(
-      "filterlines.includeLinesWithRegexMatchedGroup",
+      "filterlines.includeMatchedGroup",
       catchErrors((editor, edit, args) => {
         const args_: PromptFilterLinesArgs = {
           invert_search: false,
@@ -56,7 +56,7 @@ export function activate(
       })
     ),
     vscode.commands.registerTextEditorCommand(
-      "filterlines.includeLinesWithRegex",
+      "filterlines.includeLine",
       catchErrors((editor, edit, args) => {
         const args_: PromptFilterLinesArgs = {
           invert_search: false,
@@ -166,57 +166,75 @@ async function filterLines(
   const re = constructSearchRegExp(config, searchText, outputType);
 
   const matchingLines: number[] = [];
+  const texts: string[] = [];
   for (let lineno = 0; lineno < editor.document.lineCount; ++lineno) {
     const lineText = editor.document.lineAt(lineno).text;
-    if (re.test(lineText) !== invertSearch) {
+    const ret = re.exec(lineText);
+    if (!!ret !== invertSearch) {
       // Put context lines into `matchingLines`
-      const min =
-        matchingLines.length > 0
-          ? matchingLines[matchingLines.length - 1] + 1
-          : 0;
       matchingLines.push(lineno);
-    }
 
-    // Showing filtered output in a new tab
-    if (config.get("createNewTab")) {
-      const content: string[] = [];
-      for (const lineno of matchingLines) {
-        formatLine(editor, lineno, null, lineNumbers, content);
-        content.push("\n");
+      const regRet: RegExpExecArray = ret as RegExpExecArray;
+      let text = "";
+      switch (outputType) {
+        case "matched":
+          text = regRet[0];
+          break;
+        case "group":
+          text = regRet.slice(1, regRet.length).join("\n");
+          break;
+        case "line":
+          text = editor.document.lineAt(lineno).text;
+          break;
+        default:
+          throw new Error(`Wrong outputType: ${outputType}`);
       }
 
-      const doc = await vscode.workspace.openTextDocument({
-        language: editor.document.languageId,
-        content: content.join(""),
-      });
-      await vscode.window.showTextDocument(doc);
+      texts.push(text);
+    }
+  }
+
+  // Showing filtered output in a new tab
+  if (config.get("createNewTab")) {
+    const content: string[] = [];
+    for (let i = 0; i < matchingLines.length; i += 1) {
+      const lineno = matchingLines[i];
+      const text = texts[i];
+
+      formatLine(editor, lineno, null, lineNumbers, text, content);
+      content.push("\n");
     }
 
-    // In-place filtering
-    else {
-      const eol = editor.document.eol === vscode.EndOfLine.CRLF ? "\r\n" : "\n";
+    const doc = await vscode.workspace.openTextDocument({
+      language: editor.document.languageId,
+      content: content.join(""),
+    });
+    await vscode.window.showTextDocument(doc);
+  }
 
-      let lineno = editor.document.lineCount - 1;
-      while (matchingLines.length > 0) {
-        const matchingLine = matchingLines.pop()!;
-        while (lineno > matchingLine) {
-          const line = editor.document.lineAt(lineno);
-          edit.delete(line.rangeIncludingLineBreak);
-          --lineno;
-        }
-        const line = editor.document.lineAt(lineno);
+  // In-place filtering
+  else {
+    const eol = editor.document.eol === vscode.EndOfLine.CRLF ? "\r\n" : "\n";
 
-        // Insert line number
-        if (lineNumbers)
-          edit.insert(line.range.start, formatLineNumber(lineno));
-
-        --lineno;
-      }
-      while (lineno >= 0) {
+    let lineno = editor.document.lineCount - 1;
+    while (matchingLines.length > 0) {
+      const matchingLine = matchingLines.pop()!;
+      while (lineno > matchingLine) {
         const line = editor.document.lineAt(lineno);
         edit.delete(line.rangeIncludingLineBreak);
         --lineno;
       }
+      const line = editor.document.lineAt(lineno);
+
+      // Insert line number
+      if (lineNumbers) edit.insert(line.range.start, formatLineNumber(lineno));
+
+      --lineno;
+    }
+    while (lineno >= 0) {
+      const line = editor.document.lineAt(lineno);
+      edit.delete(line.rangeIncludingLineBreak);
+      --lineno;
     }
   }
 }
@@ -236,11 +254,12 @@ function formatLine(
   lineno: number,
   indentation: string | null,
   lineNumbers: boolean,
+  text: string,
   acc: string[]
 ): void {
   if (indentation) acc.push(indentation);
   if (lineNumbers) acc.push(formatLineNumber(lineno));
-  acc.push(editor.document.lineAt(lineno).text);
+  acc.push(text);
 }
 
 function formatLineNumber(lineno: number): string {

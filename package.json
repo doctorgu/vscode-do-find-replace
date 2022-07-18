@@ -17,9 +17,9 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:filterlines.includeLinesWithRegexMatched",
-    "onCommand:filterlines.includeLinesWithRegexMatchedGroup",
-    "onCommand:filterlines.includeLinesWithRegex",
+    "onCommand:filterlines.includeMatched",
+    "onCommand:filterlines.includeMatchedGroup",
+    "onCommand:filterlines.includeLine",
     "onCommand:filterlines.promptFilterLines",
     "onCommand:filterlines.filterLines"
   ],
@@ -27,26 +27,26 @@
   "contributes": {
     "commands": [
       {
-        "title": "Filter Lines: Include Lines with Regex Matched",
-        "command": "filterlines.includeLinesWithRegexMatched"
+        "title": "Filter Lines: Include Matched",
+        "command": "filterlines.includeMatched"
       },
       {
-        "title": "Filter Lines: Include Lines with Regex Matched Group",
-        "command": "filterlines.includeLinesWithRegexMatchedGroup"
+        "title": "Filter Lines: Include Matched Group",
+        "command": "filterlines.includeMatchedGroup"
       },
       {
-        "title": "Filter Lines: Include Lines with Regex",
-        "command": "filterlines.includeLinesWithRegex"
+        "title": "Filter Lines: Include Line",
+        "command": "filterlines.includeLine"
       }
     ],
     "keybindings": [
       {
-        "command": "filterlines.includeLinesWithRegexMatched",
+        "command": "filterlines.includeMatched",
         "key": "ctrl-k ctrl-r",
         "mac": "cmd-k cmd-r"
       },
       {
-        "command": "filterlines.includeLinesWithRegexMatchedGroup",
+        "command": "filterlines.includeMatchedGroup",
         "key": "ctrl-k ctrl-g",
         "mac": "cmd-k cmd-g"
       }
@@ -84,7 +84,7 @@
     "build:dev": "tsc --noEmit -p . && babel src --out-dir out --extensions .js,.ts --source-maps",
     "build:watch": "nodemon -e js,ts,json --watch src --watch .babelrc.js --exec \"babel src --out-dir out --extensions .js,.ts\"",
     "lint": "tslint -p .",
-    "pretest": "env BABEL_ENV=coverage yarn build && yarn run coverage:clean",
+    "pretest": "set BABEL_ENV=coverage yarn build && yarn run coverage:clean",
     "test": "node ./out/test/runTest.js && yarn run nyc check-coverage",
     "posttest": "yarn run coverage:report",
     "coverage:clean": "rimraf .nyc_output coverage",
@@ -98,21 +98,23 @@
     "@babel/node": "^7.7.4",
     "@babel/plugin-transform-runtime": "^7.10.1",
     "@babel/preset-env": "^7.1.6",
-    "@babel/preset-typescript": "^7.7.2",
     "@babel/register": "^7.0.0",
     "@doctorgu/tslint-rules": "doctorgu/tslint-rules#v1.0.0",
-    "@types/assert": "^1.4.7",
-    "@types/glob": "^7.1.2",
-    "@types/mocha": "^7.0.2",
-    "@types/node": "^10.0.0",
-    "@types/sinon": "^9.0.4",
-    "@types/vscode": "^1.24.0",
+    "@types/glob": "^7.2.0",
+    "@types/mocha": "^9.1.1",
+    "@types/node": "16.x",
+    "@types/sinon": "^10.0.12",
+    "@types/vscode": "^1.69.0",
+    "@typescript-eslint/eslint-plugin": "^5.30.0",
+    "@typescript-eslint/parser": "^5.30.0",
+    "@vscode/test-electron": "^2.1.5",
     "assert": "^2.0.0",
     "babel-plugin-istanbul": "^6.0.0",
     "codecov": "^3.6.5",
     "coveralls": "^3.1.0",
-    "glob": "^7.1.6",
-    "mocha": "^7.2.0",
+    "eslint": "^8.18.0",
+    "glob": "^8.0.3",
+    "mocha": "^10.0.0",
     "nodemon": "^2.0.1",
     "nyc": "^15.1.0",
     "ovsx": "^0.1.0-next.a9154dc",
@@ -120,7 +122,7 @@
     "sinon": "^9.0.2",
     "test-exclude": "j03m/test-exclude#j03m/fix2",
     "tslint": "^5.19.0",
-    "typescript": "^3.7.2",
+    "typescript": "^4.7.4",
     "vsce": "^1.87.0",
     "vscode-test": "^1.4.0"
   },
@@ -141,5 +143,8 @@
     "lines": 95,
     "functions": 95,
     "statements": 95
+  },
+  "dependencies": {
+    "@babel/preset-typescript": "^7.18.6"
   }
 }

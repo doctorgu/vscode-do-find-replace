@@ -11,7 +11,7 @@ suite("Line numbers", async () => {
 
     const editor = vscode.window.activeTextEditor!;
     await setEditorText(editor, NUMBERS);
-    await invokeFilterLines("filterlines.includeLinesWithRegex", "2");
+    await invokeFilterLines("filterlines.includeLine", "2");
     // Line numbers should be padded to 5 chars with spaces
     assert.equal(
       editor.document.getText().trimRight(),
