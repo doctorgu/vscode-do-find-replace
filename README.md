@@ -2,16 +2,33 @@
 
 Fork from <https://github.com/earshinov/vscode-filter-lines>
 
-- Removed `with String`, `Exclude Lines`, `Context`, `search_type`
+This extension allows you to filter lines of the current document by a regular expression and output matched or matched group(s) or entire line.
 
-- Added `Matched`, `Matched Group`, `output_type`
+```javascript
+// Example text
+1a/
+2b/
+3c/
+4d/
 
-This extension allows to you to filter lines of the current document by a string or a regular expression.
-It is basically a port of [Filter Lines][filter lines (sublime text plugin)] package for Sublime Text.
+// Output of Include Matched: \d(\w)
+1a
+2b
+3c
+4d
 
-![Demo](doc/demo.gif)
+// Output of Include Matched Group: \d(\w)
+a
+b
+c
+d
 
-(the access log used for this illustration is borrowed [here](https://github.com/antlr/grammars-v4/blob/master/clf/examples/access_log))
+// Output of Include Line: \d(\w)
+1a/
+2b/
+3c/
+4d/
+```
 
 ## Available commands
 
@@ -66,21 +83,19 @@ Implements the "Filter Lines: Include Line" command. Takes no arguments.
 
 Performs the action specified in the arguments with the given search string. Arguments:
 
-| Argument        | Possible values         | Default value | Description                                                                                                                           |
-| --------------- | ----------------------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| `search_type`   | `"regex"` or `"string"` | `"regex"`     | Defines the search type.                                                                                                              |
-| `invert_search` | `true` or `false`       | `false`       | Defines the action type. By default the "Include" action is performed. Set `invert_search` to `true` to perform the "Exclude" action. |
-| `needle`        | any string              | `""`          | Defines the search string, as in the "needle in a haystack" idiom.                                                                    |
+| Argument        | Possible values                      | Default value | Description                                                                                                                           |
+| --------------- | ------------------------------------ | ------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `output_type`   | `"matched"` or `"group"` or `"line"` | `"matched"`   | Defines the output type.                                                                                                              |
+| `invert_search` | `true` or `false`                    | `false`       | Defines the action type. By default the "Include" action is performed. Set `invert_search` to `true` to perform the "Exclude" action. |
+| `needle`        | any string                           | `""`          | Defines the search string, as in the "needle in a haystack" idiom.                                                                    |
 
 ## Differences from the original Filter Lines
 
-1. Folding is not supported due not VS Code API limitations.
-2. Menu items are not provided, again due to VS Code API limitations.
-3. With `"preserve_search": true` the search string is stored in memory rather than on disk and is cleared as soon as the VS Code window is closed.
-4. With `"line_numbers": true` line numbers are appended even when the search is inverted (that is when an "Exclude…" command is used rather than an "Include…" one).
+1. Menu items are not provided, due to VS Code API limitations.
+1. With `"preserve_search": true` the search string is stored in memory rather than on disk and is cleared as soon as the VS Code window is closed.
+1. With `"line_numbers": true` line numbers are appended even when the search is inverted.
 
-You can find this extension both in the [Visual Studio Marketplace][] and in the [Open VSX Registry][]. Happy filtering!
+You can find this extension both in the [Visual Studio Marketplace][]. Happy filtering!
 
 [filter lines (sublime text plugin)]: https://packagecontrol.io/packages/Filter%20Lines
 [visual studio marketplace]: https://marketplace.visualstudio.com/
-[open vsx registry]: https://open-vsx.org/

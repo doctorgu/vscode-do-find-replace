@@ -1,7 +1,7 @@
 {
-  "name": "filter-lines",
-  "displayName": "Filter Lines",
-  "description": "Quickly find all lines matching a string or regular expression",
+  "name": "filter-lines-2",
+  "displayName": "Filter Lines 2",
+  "description": "Add regular expression matched text by filtering lines",
   "icon": "doc/logo.png",
   "version": "1.0.0",
   "publisher": "doctorgu",
@@ -11,7 +11,7 @@
   },
   "license": "MIT",
   "engines": {
-    "vscode": "^1.24.0"
+    "vscode": "^1.69.0"
   },
   "categories": [
     "Other"
