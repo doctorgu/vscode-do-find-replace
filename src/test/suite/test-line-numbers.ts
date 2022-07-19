@@ -9,10 +9,11 @@ suite("Line numbers", async () => {
   test("Line numbers", async () => {
     REGISTRY.updateSettings({ lineNumbers: true });
 
-    const editor = vscode.window.activeTextEditor!;
+    let editor = vscode.window.activeTextEditor!;
     await setEditorText(editor, NUMBERS);
     await invokeFilterLines("filterlines.includeLine", "2");
     // Line numbers should be padded to 5 chars with spaces
+    editor = vscode.window.activeTextEditor!;
     assert.equal(
       editor.document.getText().trimRight(),
       trimmed(`

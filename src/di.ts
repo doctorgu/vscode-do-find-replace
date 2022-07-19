@@ -7,7 +7,6 @@ export interface ExtensionSettings {
   caseSensitiveRegexSearch: boolean;
   preserveSearch: boolean;
   lineNumbers: boolean;
-  createNewTab: boolean;
 }
 
 export interface SavedSearch {
@@ -28,7 +27,6 @@ export const DEFAULT_SETTINGS: Readonly<ExtensionSettings> = {
   caseSensitiveRegexSearch: true,
   preserveSearch: true,
   lineNumbers: false,
-  createNewTab: true,
 };
 
 /* istanbul ignore next */

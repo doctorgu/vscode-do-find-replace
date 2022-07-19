@@ -15,6 +15,7 @@ suite("Case sensitivity", () => {
     }); // defaults
 
     await invokeFilterLines("filterlines.includeLine", "Ipsum");
+    editor = vscode.window.activeTextEditor!;
     assert.equal(editor.document.getText().trim(), "");
 
     editor = await reopenEditor();
@@ -25,6 +26,7 @@ suite("Case sensitivity", () => {
     });
 
     await invokeFilterLines("filterlines.includeLine", "Ipsum");
+    editor = vscode.window.activeTextEditor!;
     assert.notEqual(editor.document.getText().trim(), "");
   });
 });

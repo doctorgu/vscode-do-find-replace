@@ -12,10 +12,6 @@ suiteSetup(() => {
 setup(async () => {
   // Start each test with pristine configuration.
   REGISTRY.reset();
-  // Apply some settings which will be our defaults while running tests.
-  REGISTRY.updateSettings({
-    createNewTab: false,
-  });
 
   // Open a single blank editor
   while (vscode.window.activeTextEditor) await closeEditor();

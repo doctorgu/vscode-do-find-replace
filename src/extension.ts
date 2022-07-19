@@ -194,49 +194,20 @@ async function filterLines(
     }
   }
 
-  // Showing filtered output in a new tab
-  if (config.get("createNewTab")) {
-    const content: string[] = [];
-    for (let i = 0; i < matchingLines.length; i += 1) {
-      const lineno = matchingLines[i];
-      const text = texts[i];
+  const content: string[] = [];
+  for (let i = 0; i < matchingLines.length; i += 1) {
+    const lineno = matchingLines[i];
+    const text = texts[i];
 
-      formatLine(editor, lineno, null, lineNumbers, text, content);
-      content.push("\n");
-    }
-
-    const doc = await vscode.workspace.openTextDocument({
-      language: editor.document.languageId,
-      content: content.join(""),
-    });
-    await vscode.window.showTextDocument(doc);
+    formatLine(editor, lineno, null, lineNumbers, text, content);
+    content.push("\n");
   }
 
-  // In-place filtering
-  else {
-    const eol = editor.document.eol === vscode.EndOfLine.CRLF ? "\r\n" : "\n";
-
-    let lineno = editor.document.lineCount - 1;
-    while (matchingLines.length > 0) {
-      const matchingLine = matchingLines.pop()!;
-      while (lineno > matchingLine) {
-        const line = editor.document.lineAt(lineno);
-        edit.delete(line.rangeIncludingLineBreak);
-        --lineno;
-      }
-      const line = editor.document.lineAt(lineno);
-
-      // Insert line number
-      if (lineNumbers) edit.insert(line.range.start, formatLineNumber(lineno));
-
-      --lineno;
-    }
-    while (lineno >= 0) {
-      const line = editor.document.lineAt(lineno);
-      edit.delete(line.rangeIncludingLineBreak);
-      --lineno;
-    }
-  }
+  const doc = await vscode.workspace.openTextDocument({
+    language: editor.document.languageId,
+    content: content.join(""),
+  });
+  await vscode.window.showTextDocument(doc);
 }
 
 function constructSearchRegExp(

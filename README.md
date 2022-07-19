@@ -49,12 +49,11 @@ which one would normally use in JavaScript.
 
 ## Available settings
 
-| Setting                    | Description                                                                                      | Default value |
-| -------------------------- | ------------------------------------------------------------------------------------------------ | ------------- |
-| `caseSensitiveRegexSearch` | Makes searching by regex case sensitive.                                                         | `true`        |
-| `preserveSearch`           | Tells the extension to preserve the search string.                                               | `true`        |
-| `lineNumbers`              | Includes line numbers in filtered output. Line numbers are 0-based and padded to 5 spaces.       | `false`       |
-| `createNewTab`             | Set this setting to `false` to have filtered output displayed in-place rather than in a new tab. | `true`        |
+| Setting                    | Description                                                                                | Default value |
+| -------------------------- | ------------------------------------------------------------------------------------------ | ------------- |
+| `caseSensitiveRegexSearch` | Makes searching by regex case sensitive.                                                   | `true`        |
+| `preserveSearch`           | Tells the extension to preserve the search string.                                         | `true`        |
+| `lineNumbers`              | Includes line numbers in filtered output. Line numbers are 0-based and padded to 5 spaces. | `false`       |
 
 If you are using Settings UI, you will find these settings under "Filter Lines" section.
 

@@ -11,7 +11,7 @@
   },
   "license": "MIT",
   "engines": {
-    "vscode": "^1.69.0"
+    "vscode": "^1.24.0"
   },
   "categories": [
     "Other"
@@ -68,11 +68,6 @@
           "type": "boolean",
           "default": false,
           "description": "Show source file line numbers in results"
-        },
-        "filterlines.createNewTab": {
-          "type": "boolean",
-          "default": true,
-          "description": "Create new tab for filter results"
         }
       }
     }
@@ -104,7 +99,7 @@
     "@types/mocha": "^9.1.1",
     "@types/node": "16.x",
     "@types/sinon": "^10.0.12",
-    "@types/vscode": "^1.69.0",
+    "@types/vscode": "^1.24.0",
     "@typescript-eslint/eslint-plugin": "^5.30.0",
     "@typescript-eslint/parser": "^5.30.0",
     "@vscode/test-electron": "^2.1.5",
