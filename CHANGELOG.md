@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.0.1]
+
+Removed:
+createNewTab
+
 ## [1.0.0]
 
 Fork from https://github.com/earshinov/vscode-filter-lines

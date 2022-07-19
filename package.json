@@ -3,7 +3,7 @@
   "displayName": "Filter Lines 2",
   "description": "Add regular expression matched text by filtering lines",
   "icon": "doc/logo.png",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "publisher": "doctorgu",
   "repository": {
     "type": "git",
