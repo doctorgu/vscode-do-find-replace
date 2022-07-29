@@ -11,6 +11,12 @@ This extension allows you to filter lines of the current document by a regular e
 3c/
 4d/
 
+// Output of Replace List: {"1":"11","2":"22"}
+11a
+22b
+3c
+4d
+
 // Output of Include Matched: \d(\w)
 1a
 2b
@@ -36,9 +42,10 @@ All of the following commands are available via Ctrl-Shift-P.
 
 | Command                             | Default keybinding |
 | ----------------------------------- | ------------------ |
-| Filter Lines: Include Matched       | Ctrl-K Ctrl-R \*   |
+| Filter Lines: Replace List          | Ctrl-K Ctrl-R \*   |
+| Filter Lines: Include Matched       | Ctrl-K Ctrl-M \*   |
 | Filter Lines: Include Matched Group | Ctrl-K Ctrl-G \*   |
-| Filter Lines: Include Line          |                    |
+| Filter Lines: Include Line          | Ctrl-K Ctrl-L \*   |
 
 \* Use <kbd>cmd</kbd> instead of <kbd>ctrl</kbd> on Mac
 
@@ -61,6 +68,10 @@ If you are using Settings UI, you will find these settings under "Filter Lines" 
 
 You can use these command ids to make your own keybindings.
 
+### # `filterlines.replaceList`
+
+Implements the "Filter Lines: Replace List" command with output of replaced. Takes no arguments.
+
 ### # `filterlines.includeMatched`
 
 Implements the "Filter Lines: Include Line" command with output of only matched. Takes no arguments.
@@ -73,28 +84,6 @@ Implements the "Filter Lines: Include Line" command with output of only matched 
 
 Implements the "Filter Lines: Include Line" command. Takes no arguments.
 
-| Argument        | Possible values                      | Default value | Description                                                                                                                           |
-| --------------- | ------------------------------------ | ------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| `output_type`   | `"matched"` or `"group"` or `"line"` | `"matched"`   | Defines the output type.                                                                                                              |
-| `invert_search` | `true` or `false`                    | `false`       | Defines the action type. By default the "Include" action is performed. Set `invert_search` to `true` to perform the "Exclude" action. |
-
-### # `filterLines.filterLines`
-
-Performs the action specified in the arguments with the given search string. Arguments:
-
-| Argument        | Possible values                      | Default value | Description                                                                                                                           |
-| --------------- | ------------------------------------ | ------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| `output_type`   | `"matched"` or `"group"` or `"line"` | `"matched"`   | Defines the output type.                                                                                                              |
-| `invert_search` | `true` or `false`                    | `false`       | Defines the action type. By default the "Include" action is performed. Set `invert_search` to `true` to perform the "Exclude" action. |
-| `needle`        | any string                           | `""`          | Defines the search string, as in the "needle in a haystack" idiom.                                                                    |
-
-## Differences from the original Filter Lines
-
-1. Menu items are not provided, due to VS Code API limitations.
-1. With `"preserve_search": true` the search string is stored in memory rather than on disk and is cleared as soon as the VS Code window is closed.
-1. With `"line_numbers": true` line numbers are appended even when the search is inverted.
-
 You can find this extension both in the [Visual Studio Marketplace][]. Happy filtering!
 
-[filter lines (sublime text plugin)]: https://packagecontrol.io/packages/Filter%20Lines
 [visual studio marketplace]: https://marketplace.visualstudio.com/

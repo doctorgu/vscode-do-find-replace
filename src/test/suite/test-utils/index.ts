@@ -120,6 +120,7 @@ export function untilStable(): Promise<void> {
 }
 
 export type FilterLinesCommand =
+  | "filterlines.replaceList"
   | "filterlines.includeMatched"
   | "filterlines.includeMatchedGroup"
   | "filterlines.includeLine";

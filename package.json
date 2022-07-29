@@ -3,7 +3,7 @@
   "displayName": "Filter Lines 2",
   "description": "Add regular expression matched text by filtering lines",
   "icon": "doc/logo.png",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "publisher": "doctorgu",
   "repository": {
     "type": "git",
@@ -17,6 +17,7 @@
     "Other"
   ],
   "activationEvents": [
+    "onCommand:filterlines.replaceList",
     "onCommand:filterlines.includeMatched",
     "onCommand:filterlines.includeMatchedGroup",
     "onCommand:filterlines.includeLine",
@@ -26,6 +27,10 @@
   "main": "./out/extension",
   "contributes": {
     "commands": [
+      {
+        "title": "Replace Lines: Replace List",
+        "command": "filterlines.replaceList"
+      },
       {
         "title": "Filter Lines: Include Matched",
         "command": "filterlines.includeMatched"
@@ -41,14 +46,24 @@
     ],
     "keybindings": [
       {
-        "command": "filterlines.includeMatched",
+        "command": "filterlines.replaceList",
         "key": "ctrl-k ctrl-r",
+        "mac": "cmd-k cmd-e"
+      },
+      {
+        "command": "filterlines.includeMatched",
+        "key": "ctrl-k ctrl-m",
         "mac": "cmd-k cmd-r"
       },
       {
         "command": "filterlines.includeMatchedGroup",
         "key": "ctrl-k ctrl-g",
         "mac": "cmd-k cmd-g"
+      },
+      {
+        "command": "filterlines.includeLine",
+        "key": "ctrl-k ctrl-l",
+        "mac": "cmd-k cmd-l"
       }
     ],
     "configuration": {

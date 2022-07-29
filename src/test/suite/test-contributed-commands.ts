@@ -6,6 +6,23 @@ import { NUMBERS, NUMBERS_WITH_TEXT } from "./test-data";
 import { setEditorText, invokeFilterLines } from "./test-utils";
 
 suite("Contributed commands", () => {
+  test('"Replace List"', async () => {
+    let editor = vscode.window.activeTextEditor!;
+    await setEditorText(editor, NUMBERS_WITH_TEXT);
+
+    await invokeFilterLines(
+      "filterlines.replaceList",
+      sinon.match({
+        prompt: "Replace lines by list of search and replace: ",
+        value: sinon.match.any,
+      }),
+      "1=10&2=20"
+    );
+
+    editor = vscode.window.activeTextEditor!;
+    assert.equal(editor.document.getText(), "10a\n20a\n3a\n20a\n4a");
+  });
+
   test('"Include Matched"', async () => {
     let editor = vscode.window.activeTextEditor!;
     await setEditorText(editor, NUMBERS_WITH_TEXT);

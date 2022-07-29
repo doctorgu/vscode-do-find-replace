@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.0.2]
+
+Added:
+Default key binding for Filter Lines: Include Line (Ctrl-K Ctrl-L)
+Filter applied selected text only when selected.
+Replace lines with list of search and replace.
+
+Changed:
+Default key binding for Filter Lines: Include Matched (Ctrl-K Ctrl-R) to (Ctrl-K Ctrl-M)
+
+Removed:
+Search key by section
+Invert search
+
 ## [1.0.1]
 
 Removed:
