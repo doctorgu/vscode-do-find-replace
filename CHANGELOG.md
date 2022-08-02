@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.1.0]
+
+Added:
+Reading from file path when replace.
+
 ## [1.0.2]
 
 Added:

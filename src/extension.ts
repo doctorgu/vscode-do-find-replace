@@ -1,6 +1,7 @@
 import vscode from "vscode";
+import fs from "fs";
 
-import { escapeRegexp, catchErrors } from "./utils";
+import { escapeRegexp, getWorkspaceFolder, catchErrors } from "./utils";
 import {
   IDependencyRegistry,
   ExtensionSettings,
@@ -106,12 +107,44 @@ export function activate(
 }
 
 function getSearchAndReplace(searchText: string): Map<string, string> {
+  function encode(value: string) {
+    return value.replace(/,,/g, "&comma;").replace(/::/g, "&colon;");
+  }
+  function decode(value: string) {
+    return value.replace(/&comma;/g, ",").replace(/&colon;/g, ":");
+  }
+
   let map = new Map<string, string>();
   if (!searchText) return map;
 
-  const keyValues = Object.entries(JSON.parse(searchText))
-    .sort(([a], [b]) => a.localeCompare(b))
-    .reverse();
+  // Row delimeter is comma when user input, line separator when file.
+  let rowDelim = /,/;
+  try {
+    const workspaceFolder = getWorkspaceFolder();
+    const folder =
+      !searchText.includes(":") && !!workspaceFolder
+        ? `${workspaceFolder}/${searchText}`
+        : searchText;
+    const valueInFile = fs.readFileSync(folder, "utf-8");
+    searchText = valueInFile;
+    rowDelim = /\r*\n/;
+  } catch (ex) {
+    console.log(ex);
+  }
+
+  const kvList = [];
+  const value = encode(searchText);
+  const rows = value.split(rowDelim);
+  for (let rw = 0; rw < rows.length; rw += 1) {
+    const [k, v] = rows[rw].split(":");
+    if (k && v) {
+      const key = decode(k);
+      const value = decode(v);
+      kvList.push([key, value]);
+    }
+  }
+
+  const keyValues = kvList.sort(([a], [b]) => a.localeCompare(b)).reverse();
   map = new Map(keyValues as [string, string][]);
   return map;
 }
@@ -156,7 +189,7 @@ function promptForSearchText(
 ): Thenable<string | undefined> {
   let prompt = "";
   if (outputType === "replace") {
-    prompt = `Replace list with valid JSON string (ex: '{"a":1,"b":2}')`;
+    prompt = `List of Search and replace. Use two comma or colon to escape (ex: 'a:1,b:2,c::c:3,,000')`;
   } else {
     prompt = `Filter ${
       (outputType === "matched" && "matching") ||

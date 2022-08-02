@@ -11,7 +11,7 @@ This extension allows you to filter lines of the current document by a regular e
 3c/
 4d/
 
-// Output of Replace List: {"1":"11","2":"22"}
+// Output of Replace List: 1:11,2:22
 11a
 22b
 3c
@@ -70,19 +70,23 @@ You can use these command ids to make your own keybindings.
 
 ### # `filterlines.replaceList`
 
-Implements the "Filter Lines: Replace List" command with output of replaced. Takes no arguments.
+Implements the "Filter Lines: Replace List" command with output of replaced.
+
+Input value is combined with comma(,) and colon(:) when read from user input, but line delimeter when read from file.
+
+For example `1:11,2:22` must be replaced to `1:11\n2:22` or `1:11\r\n2:22` when you enter file path in input box.
 
 ### # `filterlines.includeMatched`
 
-Implements the "Filter Lines: Include Line" command with output of only matched. Takes no arguments.
+Implements the "Filter Lines: Include Line" command with output of only matched.
 
 ### # `filterlines.includeMatchedGroup`
 
-Implements the "Filter Lines: Include Line" command with output of only matched group(s). Takes no arguments.
+Implements the "Filter Lines: Include Line" command with output of only matched group(s).
 
 ### # `filterlines.includeLine`
 
-Implements the "Filter Lines: Include Line" command. Takes no arguments.
+Implements the "Filter Lines: Include Line" command.
 
 You can find this extension both in the [Visual Studio Marketplace][]. Happy filtering!
 
