@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.1.2]
+
+Added:
+p flag for isPath when replace list. + operator when p flag.
+c flag for change key and value when replace list.
+
+Removed:
+Descending sort removed when replace list because it cannot solve all problem for replacing again.
+
 ## [1.1.1]
 
 Changed:

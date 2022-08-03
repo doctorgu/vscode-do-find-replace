@@ -5,20 +5,20 @@ Fork from <https://github.com/earshinov/vscode-filter-lines>
 This extension allows you
 
 1. To filter text of the current document by a regular expression and output matched or matched group(s).
-2. To replace text of the current document by a list of regular expression used find and replace and output.
+2. To replace text of the current document by a list of find and replace and output replaced text.
 
 ```javascript
 // Example text
-1a/
-2b/
-3c/
-4d/
+1a!
+2b!
+3c!
+4d!
 
 // Output of Replace List: 1:11,2:22
-11a
-22b
-3c
-4d
+11a!
+22b!
+3c!
+4d!
 
 // Output of Include Matched: \d(\w)
 1a
@@ -50,6 +50,32 @@ All of the following commands are available via Ctrl-Shift-P.
 Use `s` (DOTALL) flag if you want to match multiple lines.
 See [MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions) for syntax reference, but
 keep in mind that you need to prefix flag between `(?` and `)` like `(?gs)` and inner part of the regex without the enclosing slashes (`/.../`) like `(?gs)\d+`.
+
+## Flags
+
+You can prefix flags between `(?` and `)` like `(?gis)`. If not prefixed default `gs` flags will be used.
+
+### Following is RegExp flags
+
+`g`(global): Don't return after first match
+
+`m`(multi line): ^ and $ match start/end of line
+
+`i`(insensitive): Case insensitive match
+
+`y`(sticky): Anchor to start of pattern, or at the end of the most recent match
+
+`u`(unicode): Match with full unicode
+
+`s`(single line): Dot matches newline
+
+`d`(indices): The regex engine returns match indices
+
+### Following is extension specific flags
+
+`p`(path): Read find and replace value from file path. Use `+` to specify multiple path like `common.txt+order.txt`
+
+`c`(change): Change key and value. For example, `a:1` means replace `1` with `a`, but means replace `a` with `1` when `c` flag used.
 
 ## Available settings
 
@@ -84,6 +110,6 @@ Implements the "Find Replace: Include Line" command with output of only matched.
 
 Implements the "Find Replace: Include Line" command with output of only matched group(s).
 
-You can find this extension both in the [Visual Studio Marketplace][]. Happy filtering!
+You can find this extension in the [Visual Studio Marketplace][].
 
 [visual studio marketplace]: https://marketplace.visualstudio.com/
