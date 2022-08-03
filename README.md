@@ -71,6 +71,11 @@ Input value is combined with comma(,) and colon(:) when read from user input, bu
 
 For example `1:11,2:22` must be replaced to `1:11\n2:22` or `1:11\r\n2:22` when you enter file path in input box.
 
+To escape `,` or `:`
+
+1. Use doubled value like `,,` or `::`
+2. Use `&comma;` or `&colon;`
+
 ### # `findReplace.includeMatched`
 
 Implements the "Find Replace: Include Line" command with output of only matched.
