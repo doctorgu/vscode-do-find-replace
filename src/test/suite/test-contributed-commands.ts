@@ -3,17 +3,17 @@ import sinon from "sinon";
 import vscode from "vscode";
 
 import { NUMBERS, NUMBERS_WITH_TEXT } from "./test-data";
-import { setEditorText, invokeFilterLines } from "./test-utils";
+import { setEditorText, invokeFindReplace } from "./test-utils";
 
 suite("Contributed commands", () => {
   test('"Replace List"', async () => {
     let editor = vscode.window.activeTextEditor!;
     await setEditorText(editor, NUMBERS_WITH_TEXT);
 
-    await invokeFilterLines(
-      "filterlines.replaceList",
+    await invokeFindReplace(
+      "findReplace.replaceList",
       sinon.match({
-        prompt: "Replace lines by list of search and replace: ",
+        prompt: "Replace text by list of search and replace: ",
         value: sinon.match.any,
       }),
       "1=10&2=20"
@@ -27,10 +27,10 @@ suite("Contributed commands", () => {
     let editor = vscode.window.activeTextEditor!;
     await setEditorText(editor, NUMBERS_WITH_TEXT);
 
-    await invokeFilterLines(
-      "filterlines.includeMatched",
+    await invokeFindReplace(
+      "findReplace.includeMatched",
       sinon.match({
-        prompt: "Filter to lines matching matched: ",
+        prompt: "Filter to text matching matched: ",
         value: sinon.match.any,
       }),
       "[23]"
@@ -44,30 +44,13 @@ suite("Contributed commands", () => {
     let editor = vscode.window.activeTextEditor!;
     await setEditorText(editor, NUMBERS);
 
-    await invokeFilterLines(
-      "filterlines.includeMatchedGroup",
+    await invokeFindReplace(
+      "findReplace.includeMatchedGroup",
       sinon.match({
-        prompt: "Filter to lines matching matched group: ",
+        prompt: "Filter to text matching matched group: ",
         value: sinon.match.any,
       }),
       "([23])"
-    );
-
-    editor = vscode.window.activeTextEditor!;
-    assert.equal(editor.document.getText(), "2\n3\n2\n");
-  });
-
-  test('"Include Line"', async () => {
-    let editor = vscode.window.activeTextEditor!;
-    await setEditorText(editor, NUMBERS);
-
-    await invokeFilterLines(
-      "filterlines.includeLine",
-      sinon.match({
-        prompt: "Filter to lines matching line: ",
-        value: sinon.match.any,
-      }),
-      "[23]"
     );
 
     editor = vscode.window.activeTextEditor!;

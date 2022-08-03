@@ -9,9 +9,9 @@ import {
 } from "./di";
 import { IConfiguration } from "./configuration";
 
-type OutputType = "matched" | "group" | "line" | "replace";
+type OutputType = "matched" | "group" | "replace";
 
-interface PromptFilterLinesArgs {
+interface PromptFindReplaceArgs {
   output_type?: OutputType;
 }
 
@@ -19,7 +19,7 @@ interface ReplaceLinesArgs {
   searchAndReplace: Map<string, string>;
 }
 
-interface FilterLinesArgs {
+interface FindReplaceArgs {
   output_type?: OutputType;
   needle: string;
 }
@@ -39,68 +39,59 @@ export function activate(
     // Provide wrapper commands to be bound in package.json > "contributes" > "commands".
     // If one command is bound several times with different "args", VS Code only displays the last entry in the Ctrl-Shift-P menu.
     vscode.commands.registerTextEditorCommand(
-      "filterlines.replaceList",
+      "findReplace.replaceList",
       catchErrors((editor, edit, args) => {
-        const args_: PromptFilterLinesArgs = {
+        const args_: PromptFindReplaceArgs = {
           output_type: "replace",
         };
-        vscode.commands.executeCommand("filterlines.promptFilterLines", args_);
+        vscode.commands.executeCommand("findReplace.promptFindReplace", args_);
       })
     ),
     vscode.commands.registerTextEditorCommand(
-      "filterlines.includeMatched",
+      "findReplace.includeMatched",
       catchErrors((editor, edit, args) => {
-        const args_: PromptFilterLinesArgs = {
+        const args_: PromptFindReplaceArgs = {
           output_type: "matched",
         };
-        vscode.commands.executeCommand("filterlines.promptFilterLines", args_);
+        vscode.commands.executeCommand("findReplace.promptFindReplace", args_);
       })
     ),
     vscode.commands.registerTextEditorCommand(
-      "filterlines.includeMatchedGroup",
+      "findReplace.includeMatchedGroup",
       catchErrors((editor, edit, args) => {
-        const args_: PromptFilterLinesArgs = {
+        const args_: PromptFindReplaceArgs = {
           output_type: "group",
         };
-        vscode.commands.executeCommand("filterlines.promptFilterLines", args_);
-      })
-    ),
-    vscode.commands.registerTextEditorCommand(
-      "filterlines.includeLine",
-      catchErrors((editor, edit, args) => {
-        const args_: PromptFilterLinesArgs = {
-          output_type: "line",
-        };
-        vscode.commands.executeCommand("filterlines.promptFilterLines", args_);
+        vscode.commands.executeCommand("findReplace.promptFindReplace", args_);
       })
     ),
 
     vscode.commands.registerTextEditorCommand(
-      "filterlines.promptFilterLines",
+      "findReplace.promptFindReplace",
       catchErrors((editor, edit, args) => {
         const { output_type = "matched" } =
-          (args as PromptFilterLinesArgs) || {};
+          (args as PromptFindReplaceArgs) || {};
         const registry = DI.getRegistry(extensionContext);
-        promptFilterLines(registry, editor, edit, output_type).then();
+        promptFindReplace(registry, editor, edit, output_type).then();
       })
     ),
 
     vscode.commands.registerTextEditorCommand(
-      "filterlines.replaceLines",
+      "findReplace.replaceText",
       catchErrors((editor, edit, args) => {
         const { searchAndReplace = new Map<string, string>() } =
           (args as ReplaceLinesArgs) || {};
         const registry = DI.getRegistry(extensionContext);
-        replaceLines(registry, editor, edit, searchAndReplace);
+        replaceText(registry, editor, edit, searchAndReplace);
       })
     ),
     vscode.commands.registerTextEditorCommand(
-      "filterlines.filterLines",
+      "findReplace.filterText",
       catchErrors((editor, edit, args) => {
         const { output_type = "matched", needle = "" } =
-          (args as FilterLinesArgs) || {};
+          (args as FindReplaceArgs) || {};
         const registry = DI.getRegistry(extensionContext);
-        filterLines(registry, editor, edit, needle, output_type);
+        filterText(registry, editor, edit, needle, output_type);
       })
     )
   );
@@ -149,7 +140,7 @@ function getSearchAndReplace(searchText: string): Map<string, string> {
   return map;
 }
 
-async function promptFilterLines(
+async function promptFindReplace(
   registry: IDependencyRegistry,
   editor: vscode.TextEditor,
   edit: vscode.TextEditorEdit,
@@ -172,13 +163,13 @@ async function promptFilterLines(
     const args: ReplaceLinesArgs = {
       searchAndReplace,
     };
-    vscode.commands.executeCommand("filterlines.replaceLines", args);
+    vscode.commands.executeCommand("findReplace.replaceText", args);
   } else {
-    const args: FilterLinesArgs = {
+    const args: FindReplaceArgs = {
       output_type: outputType,
       needle: searchText,
     };
-    vscode.commands.executeCommand("filterlines.filterLines", args);
+    vscode.commands.executeCommand("findReplace.filterText", args);
   }
 }
 
@@ -193,21 +184,13 @@ function promptForSearchText(
   } else {
     prompt = `Filter ${
       (outputType === "matched" && "matching") ||
-      (outputType === "group" && "matching group") ||
-      (outputType === "line" && "matching line")
+      (outputType === "group" && "matching group")
     }: `;
   }
 
   let searchText = registry.configuration.get("preserveSearch")
     ? registry.searchStorage.get("latestSearch")
-    : "";
-  // if (!searchText) {
-  //   // Use word under cursor
-  //   const wordRange = editor.document.getWordRangeAtPosition(
-  //     editor.selection.active
-  //   );
-  //   if (wordRange) searchText = editor.document.getText(wordRange);
-  // }
+    : "(?gm)";
 
   return vscode.window.showInputBox({
     prompt,
@@ -215,7 +198,7 @@ function promptForSearchText(
   });
 }
 
-function getSelectedOrAll(editor: vscode.TextEditor): string[] {
+function getSelectedOrAll(editor: vscode.TextEditor): string {
   let text = editor.document.getText(editor.selection);
   if (!text) {
     const firstLine = editor.document.lineAt(0);
@@ -226,144 +209,88 @@ function getSelectedOrAll(editor: vscode.TextEditor): string[] {
     );
     text = editor.document.getText(textRange);
   }
-  const lines = text.split(/\r*\n/);
-  return lines;
+  return text;
 }
 
-async function filterLines(
-  registry: IDependencyRegistry,
-  editor: vscode.TextEditor,
-  edit: vscode.TextEditorEdit,
-  searchText: string,
-  outputType: OutputType
-) {
-  const config = registry.configuration;
-  const lineNumbers = config.get("lineNumbers");
-
-  const re = constructSearchRegExp(config, searchText, outputType);
-
-  const matchingLines: number[] = [];
-  const texts: string[] = [];
-
-  const lines = getSelectedOrAll(editor);
-
-  for (let lineno = 0; lineno < lines.length; ++lineno) {
-    const lineText = lines[lineno];
-
-    const ret = re.exec(lineText);
-    if (!ret) {
-      continue;
-    }
-
-    matchingLines.push(lineno);
-
-    let text = "";
-    switch (outputType) {
-      case "matched":
-      case "group":
-        const regRet: RegExpExecArray = ret as RegExpExecArray;
-        if (outputType === "matched") {
-          text = regRet[0];
-        } else if (outputType === "group") {
-          text = regRet.slice(1, regRet.length).join("\n");
-        }
-        break;
-      case "line":
-        text = lineText;
-        break;
-      default:
-        throw new Error(`Wrong outputType: ${outputType}`);
-    }
-
-    texts.push(text);
+function constructSearchRegExp(
+  config: IConfiguration<ExtensionSettings>,
+  searchText: string
+): RegExp {
+  if (!/^\(\?([gmiyusd]+)\)/.test(searchText)) {
+    const defaultFlags = "gm";
+    return new RegExp(searchText, defaultFlags);
   }
 
-  const content: string[] = [];
-  for (let i = 0; i < matchingLines.length; i += 1) {
-    const lineno = matchingLines[i];
-    const text = texts[i];
-
-    formatLine(editor, lineno, lineNumbers, text, content);
-    content.push("\n");
+  const ret = /^\(\?([gmiyusd]+)\)(.+)/.exec(searchText);
+  if (!ret) {
+    throw new Error(`Wrong searchText: ${searchText}`);
   }
 
-  const doc = await vscode.workspace.openTextDocument({
-    language: editor.document.languageId,
-    content: content.join(""),
-  });
-  await vscode.window.showTextDocument(doc);
+  const flags = ret[1];
+  const pattern = ret[2];
+
+  return new RegExp(pattern, flags);
 }
 
-async function replaceLines(
+async function replaceText(
   registry: IDependencyRegistry,
   editor: vscode.TextEditor,
   edit: vscode.TextEditorEdit,
   searchAndReplace: Map<string, string>
 ) {
   const config = registry.configuration;
-  const lineNumbers = config.get("lineNumbers");
 
-  const matchingLines: number[] = [];
-  const texts: string[] = [];
+  const text = getSelectedOrAll(editor);
 
-  const lines = getSelectedOrAll(editor);
-
-  for (let lineno = 0; lineno < lines.length; ++lineno) {
-    let lineText = lines[lineno];
-
-    searchAndReplace.forEach((toReplace, toSearch) => {
-      const re = constructSearchRegExp(config, toSearch, "replace");
-      lineText = lineText.replace(re, toReplace);
-    });
-
-    matchingLines.push(lineno);
-    texts.push(lineText);
-  }
-
-  const content: string[] = [];
-  for (let i = 0; i < matchingLines.length; i += 1) {
-    const lineno = matchingLines[i];
-    const text = texts[i];
-
-    formatLine(editor, lineno, lineNumbers, text, content);
-    content.push("\n");
+  let textNew = text;
+  for (let [toSearch, toReplace] of searchAndReplace) {
+    const re = constructSearchRegExp(config, toSearch);
+    textNew = textNew.replace(re, toReplace);
   }
 
   const doc = await vscode.workspace.openTextDocument({
     language: editor.document.languageId,
-    content: content.join(""),
+    content: textNew,
   });
   await vscode.window.showTextDocument(doc);
 }
 
-function constructSearchRegExp(
-  config: IConfiguration<ExtensionSettings>,
+async function filterText(
+  registry: IDependencyRegistry,
+  editor: vscode.TextEditor,
+  edit: vscode.TextEditorEdit,
   searchText: string,
   outputType: OutputType
-): RegExp {
-  let flags = "";
-  if (!config.get("caseSensitiveRegexSearch")) flags += "i";
-  if (outputType === "replace") flags += "g";
-  return new RegExp(searchText, flags);
-}
+) {
+  const config = registry.configuration;
 
-function formatLine(
-  editor: vscode.TextEditor,
-  lineno: number,
-  lineNumbers: boolean,
-  text: string,
-  acc: string[]
-): void {
-  if (lineNumbers) acc.push(formatLineNumber(lineno));
-  acc.push(text);
-}
+  const re = constructSearchRegExp(config, searchText);
 
-function formatLineNumber(lineno: number): string {
-  return `${String(lineno).padStart(5)}: `;
-}
+  const founds: string[] = [];
 
-function getIndentation(editor: vscode.TextEditor): string {
-  return editor.options.insertSpaces
-    ? " ".repeat(editor.options.tabSize as number)
-    : "\t";
+  const text = getSelectedOrAll(editor);
+
+  for (let m = re.exec(text); (m = re.exec(text)); m !== null) {
+    let text = "";
+    switch (outputType) {
+      case "matched":
+      case "group":
+        if (outputType === "matched") {
+          text = m[0];
+        } else if (outputType === "group") {
+          text = m.slice(1, m.length).join("\n");
+        }
+        break;
+      default:
+        throw new Error(`Wrong outputType: ${outputType}`);
+    }
+
+    founds.push(text);
+  }
+
+  const doc = await vscode.workspace.openTextDocument({
+    language: editor.document.languageId,
+    content: founds.join(""),
+  });
+  await vscode.window.showTextDocument(doc);
 }

@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.1.1]
+
+Changed:
+Replace and filter target changed to whole text instead of each line.
+So title changed to `DoFindReplace`.
+
+Removed:
+includeLine
+caseSensitiveRegexSearch
+
 ## [1.1.0]
 
 Added:

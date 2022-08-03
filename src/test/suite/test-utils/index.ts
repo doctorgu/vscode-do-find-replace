@@ -119,26 +119,25 @@ export function untilStable(): Promise<void> {
   });
 }
 
-export type FilterLinesCommand =
-  | "filterlines.replaceList"
-  | "filterlines.includeMatched"
-  | "filterlines.includeMatchedGroup"
-  | "filterlines.includeLine";
+export type FindReplaceCommand =
+  | "findReplace.replaceList"
+  | "findReplace.includeMatched"
+  | "findReplace.includeMatchedGroup";
 
 /**
- * Invoke one of "Filter Lines" commands
+ * Invoke one of "Find Replace" commands
  */
-export async function invokeFilterLines(
-  command: FilterLinesCommand,
+export async function invokeFindReplace(
+  command: FindReplaceCommand,
   searchText: string | undefined
 ): Promise<void>;
-export async function invokeFilterLines(
-  command: FilterLinesCommand,
+export async function invokeFindReplace(
+  command: FindReplaceCommand,
   searchTextOptions: sinon.SinonMatcher,
   searchText: string | undefined
 ): Promise<void>;
-export async function invokeFilterLines(
-  command: FilterLinesCommand,
+export async function invokeFindReplace(
+  command: FindReplaceCommand,
   searchTextOptionsOrSearchText: sinon.SinonMatcher | string | undefined,
   optionalSearchText?: string | undefined
 ): Promise<void> {

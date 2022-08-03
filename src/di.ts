@@ -4,9 +4,7 @@ import { IConfiguration, VscodeWorkspaceConfiguration } from "./configuration";
 import { IStorage, GivenStorage, VscodeGlobalStorage } from "./storage";
 
 export interface ExtensionSettings {
-  caseSensitiveRegexSearch: boolean;
   preserveSearch: boolean;
-  lineNumbers: boolean;
 }
 
 export interface SavedSearch {
@@ -24,9 +22,7 @@ export interface IDependencyRegistry {
 
 // IMPORTANT: Keep this in sync with package.json
 export const DEFAULT_SETTINGS: Readonly<ExtensionSettings> = {
-  caseSensitiveRegexSearch: true,
   preserveSearch: true,
-  lineNumbers: false,
 };
 
 /* istanbul ignore next */
@@ -35,7 +31,7 @@ export class DependencyRegistry implements IDependencyRegistry {
 
   // @override
   readonly configuration = new VscodeWorkspaceConfiguration(
-    vscode.workspace.getConfiguration("filterlines"),
+    vscode.workspace.getConfiguration("findReplace"),
     DEFAULT_SETTINGS
   );
 

@@ -6,7 +6,7 @@ import { REGISTRY } from "./test-di";
 import {
   setEditorText,
   findPosition,
-  invokeFilterLines,
+  invokeFindReplace,
   reopenEditor,
 } from "./test-utils";
 
@@ -28,8 +28,8 @@ suite("Word under cursor", () => {
     let pos = findPosition(editor.document, "fe|ugiat");
     editor.selection = new vscode.Selection(pos, pos);
 
-    await invokeFilterLines(
-      "filterlines.includeLine",
+    await invokeFindReplace(
+      "findReplace.includeMatched",
       sinon.match({
         prompt: sinon.match.any,
         value: "feugiat",
@@ -43,8 +43,8 @@ suite("Word under cursor", () => {
     pos = findPosition(editor.document, "consecte|tur");
     editor.selection = new vscode.Selection(pos, pos);
 
-    await invokeFilterLines(
-      "filterlines.includeLine",
+    await invokeFindReplace(
+      "findReplace.includeMatched",
       sinon.match({
         prompt: sinon.match.any,
         value: preserveSearch ? "feugiat" : "consectetur",

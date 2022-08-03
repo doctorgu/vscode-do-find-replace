@@ -1,13 +1,13 @@
 {
-  "name": "filter-lines-2",
-  "displayName": "Filter Lines 2",
-  "description": "Add regular expression matched text by filtering lines",
+  "name": "do-find-replace",
+  "displayName": "Do Find Replace",
+  "description": "Output regular expression matched or replaced text",
   "icon": "doc/logo.png",
   "version": "1.1.0",
   "publisher": "doctorgu",
   "repository": {
     "type": "git",
-    "url": "https://github.com/doctorgu/vscode-filter-lines-2"
+    "url": "https://github.com/doctorgu/vscode-do-find-replace"
   },
   "license": "MIT",
   "engines": {
@@ -17,72 +17,53 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:filterlines.replaceList",
-    "onCommand:filterlines.includeMatched",
-    "onCommand:filterlines.includeMatchedGroup",
-    "onCommand:filterlines.includeLine",
-    "onCommand:filterlines.promptFilterLines",
-    "onCommand:filterlines.filterLines"
+    "onCommand:findReplace.replaceList",
+    "onCommand:findReplace.includeMatched",
+    "onCommand:findReplace.includeMatchedGroup",
+    "onCommand:findReplace.promptFindReplace",
+    "onCommand:findReplace.replaceText",
+    "onCommand:findReplace.filterText"
   ],
   "main": "./out/extension",
   "contributes": {
     "commands": [
       {
-        "title": "Replace Lines: Replace List",
-        "command": "filterlines.replaceList"
+        "title": "Find Replace: Replace List",
+        "command": "findReplace.replaceList"
       },
       {
-        "title": "Filter Lines: Include Matched",
-        "command": "filterlines.includeMatched"
+        "title": "Find Replace: Include Matched",
+        "command": "findReplace.includeMatched"
       },
       {
-        "title": "Filter Lines: Include Matched Group",
-        "command": "filterlines.includeMatchedGroup"
-      },
-      {
-        "title": "Filter Lines: Include Line",
-        "command": "filterlines.includeLine"
+        "title": "Find Replace: Include Matched Group",
+        "command": "findReplace.includeMatchedGroup"
       }
     ],
     "keybindings": [
       {
-        "command": "filterlines.replaceList",
+        "command": "findReplace.replaceList",
         "key": "ctrl-k ctrl-r",
         "mac": "cmd-k cmd-e"
       },
       {
-        "command": "filterlines.includeMatched",
+        "command": "findReplace.includeMatched",
         "key": "ctrl-k ctrl-m",
         "mac": "cmd-k cmd-r"
       },
       {
-        "command": "filterlines.includeMatchedGroup",
+        "command": "findReplace.includeMatchedGroup",
         "key": "ctrl-k ctrl-g",
         "mac": "cmd-k cmd-g"
-      },
-      {
-        "command": "filterlines.includeLine",
-        "key": "ctrl-k ctrl-l",
-        "mac": "cmd-k cmd-l"
       }
     ],
     "configuration": {
-      "title": "Filter Lines",
+      "title": "Find Replace",
       "properties": {
-        "filterlines.caseSensitiveRegexSearch": {
-          "type": "boolean",
-          "default": true,
-          "description": "If true, regex searches are case-sensitive"
-        },
-        "filterlines.preserveSearch": {
+        "findReplace.preserveSearch": {
           "type": "boolean",
           "default": true,
           "description": "If true, your latest search string or regex will be saved, and then restored for your next search. If false, the search string or regex will be blank"
-        },
-        "filterlines.lineNumbers": {
-          "type": "boolean",
-          "default": false,
-          "description": "Show source file line numbers in results"
         }
       }
     }

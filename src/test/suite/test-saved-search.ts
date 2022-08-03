@@ -3,7 +3,7 @@ import vscode from "vscode";
 
 import { LIPSUM } from "./test-data";
 import { REGISTRY } from "./test-di";
-import { setEditorText, invokeFilterLines, reopenEditor } from "./test-utils";
+import { setEditorText, invokeFindReplace, reopenEditor } from "./test-utils";
 
 suite("Saved search", () => {
   test("Preserved search works", async () => {
@@ -11,13 +11,13 @@ suite("Saved search", () => {
 
     let editor = vscode.window.activeTextEditor!;
     await setEditorText(editor, LIPSUM);
-    await invokeFilterLines("filterlines.includeLine", "ipsum");
+    await invokeFindReplace("findReplace.includeMatched", ".*ipsum.*");
 
     editor = await reopenEditor();
 
-    await invokeFilterLines(
-      "filterlines.includeLine",
-      sinon.match({ value: "ipsum" }),
+    await invokeFindReplace(
+      "findReplace.includeMatched",
+      sinon.match({ value: ".*ipsum.*" }),
       undefined
     );
   });
@@ -27,12 +27,12 @@ suite("Saved search", () => {
 
     let editor = vscode.window.activeTextEditor!;
     await setEditorText(editor, LIPSUM);
-    await invokeFilterLines("filterlines.includeLine", "ipsum");
+    await invokeFindReplace("findReplace.includeMatched", ".*ipsum.*");
 
     editor = await reopenEditor();
 
-    await invokeFilterLines(
-      "filterlines.includeLine",
+    await invokeFindReplace(
+      "findReplace.includeMatched",
       sinon.match({ value: "" }),
       undefined
     );
@@ -44,12 +44,12 @@ suite("Saved search", () => {
 
     const editor = vscode.window.activeTextEditor!;
     setEditorText(editor, LIPSUM);
-    await invokeFilterLines("filterlines.includeLine", "ipsum");
+    await invokeFindReplace("findReplace.includeMatched", ".*ipsum.*");
 
     await vscode.commands.executeCommand("vscode.openFolder");
 
-    await invokeFilterLines(
-      "filterlines.includeLine",
+    await invokeFindReplace(
+      "findReplace.includeMatched",
       sinon.match({ value: sinon.match((value) => value !== "ipsum") }),
       undefined
     );
