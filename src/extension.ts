@@ -15,13 +15,15 @@ interface PromptFindReplaceArgs {
   output_type?: OutputType;
 }
 
-interface ReplaceLinesArgs {
-  searchAndReplace: Map<string, string>;
+interface ReplaceTextArgs {
+  flags: string;
+  findAndReplace: Map<string, string>;
 }
 
-interface FindReplaceArgs {
+interface FindTextArgs {
   output_type?: OutputType;
-  needle: string;
+  flags: string;
+  find: string;
 }
 
 export const DI = {
@@ -79,25 +81,27 @@ export function activate(
     vscode.commands.registerTextEditorCommand(
       "findReplace.replaceText",
       catchErrors((editor, edit, args) => {
-        const { searchAndReplace = new Map<string, string>() } =
-          (args as ReplaceLinesArgs) || {};
+        const { flags, findAndReplace } = (args as ReplaceTextArgs) || {};
         const registry = DI.getRegistry(extensionContext);
-        replaceText(registry, editor, edit, searchAndReplace);
+        replaceText(registry, editor, edit, flags, findAndReplace);
       })
     ),
     vscode.commands.registerTextEditorCommand(
       "findReplace.filterText",
       catchErrors((editor, edit, args) => {
-        const { output_type = "matched", needle = "" } =
-          (args as FindReplaceArgs) || {};
+        const {
+          flags,
+          find,
+          output_type = "matched",
+        } = (args as FindTextArgs) || {};
         const registry = DI.getRegistry(extensionContext);
-        filterText(registry, editor, edit, needle, output_type);
+        filterText(registry, editor, edit, flags, find, output_type);
       })
     )
   );
 }
 
-function getSearchAndReplace(searchText: string): Map<string, string> {
+function getFindAndReplace(find: string): Map<string, string> {
   function encode(value: string) {
     return value.replace(/,,/g, "&comma;").replace(/::/g, "&colon;");
   }
@@ -106,25 +110,25 @@ function getSearchAndReplace(searchText: string): Map<string, string> {
   }
 
   let map = new Map<string, string>();
-  if (!searchText) return map;
+  if (!find) return map;
 
   // Row delimeter is comma when user input, line separator when file.
   let rowDelim = /,/;
   try {
     const workspaceFolder = getWorkspaceFolder();
     const folder =
-      !searchText.includes(":") && !!workspaceFolder
-        ? `${workspaceFolder}/${searchText}`
-        : searchText;
+      !find.includes(":") && !!workspaceFolder
+        ? `${workspaceFolder}/${find}`
+        : find;
     const valueInFile = fs.readFileSync(folder, "utf-8");
-    searchText = valueInFile;
+    find = valueInFile;
     rowDelim = /\r*\n/;
   } catch (ex) {
     console.log(ex);
   }
 
   const kvList = [];
-  const value = encode(searchText);
+  const value = encode(find);
   const rows = value.split(rowDelim);
   for (let rw = 0; rw < rows.length; rw += 1) {
     const [k, v] = rows[rw].split(":");
@@ -146,34 +150,38 @@ async function promptFindReplace(
   edit: vscode.TextEditorEdit,
   outputType: OutputType
 ): Promise<void> {
-  const searchText = await promptForSearchText(registry, editor, outputType);
-  if (searchText == null) return;
+  const input = await promptForFindText(registry, editor, outputType);
+  if (input == null) return;
+
+  const { flags, find } = getFlagsAndFind(input);
 
   if (registry.configuration.get("preserveSearch"))
-    registry.searchStorage.set("latestSearch", searchText);
+    registry.searchStorage.set("latestSearch", input);
 
   if (outputType === "replace") {
-    let searchAndReplace = new Map<string, string>();
+    let findAndReplace = new Map<string, string>();
     try {
-      searchAndReplace = getSearchAndReplace(searchText);
+      findAndReplace = getFindAndReplace(find);
     } catch (ex: any) {
       vscode.window.showErrorMessage(`${ex?.name}, ${ex?.message}`);
       return;
     }
-    const args: ReplaceLinesArgs = {
-      searchAndReplace,
+    const args: ReplaceTextArgs = {
+      flags,
+      findAndReplace,
     };
     vscode.commands.executeCommand("findReplace.replaceText", args);
   } else {
-    const args: FindReplaceArgs = {
+    const args: FindTextArgs = {
       output_type: outputType,
-      needle: searchText,
+      flags,
+      find,
     };
     vscode.commands.executeCommand("findReplace.filterText", args);
   }
 }
 
-function promptForSearchText(
+function promptForFindText(
   registry: IDependencyRegistry,
   editor: vscode.TextEditor,
   outputType: OutputType
@@ -188,13 +196,14 @@ function promptForSearchText(
     }: `;
   }
 
-  let searchText = registry.configuration.get("preserveSearch")
-    ? registry.searchStorage.get("latestSearch")
-    : "(?gm)";
+  let findText =
+    (registry.configuration.get("preserveSearch") &&
+      registry.searchStorage.get("latestSearch")) ||
+    "(?gm)";
 
   return vscode.window.showInputBox({
     prompt,
-    value: searchText,
+    value: findText,
   });
 }
 
@@ -212,39 +221,39 @@ function getSelectedOrAll(editor: vscode.TextEditor): string {
   return text;
 }
 
-function constructSearchRegExp(
-  config: IConfiguration<ExtensionSettings>,
-  searchText: string
-): RegExp {
-  if (!/^\(\?([gmiyusd]+)\)/.test(searchText)) {
-    const defaultFlags = "gm";
-    return new RegExp(searchText, defaultFlags);
+function getFlagsAndFind(
+  findText: string,
+  defaultFlags = "gm"
+): { flags: string; find: string } {
+  const re = /^\(\?([gmiyusd]+)\)(.+)/;
+  if (!re.test(findText)) {
+    return { flags: defaultFlags, find: findText };
   }
 
-  const ret = /^\(\?([gmiyusd]+)\)(.+)/.exec(searchText);
+  const ret = re.exec(findText);
   if (!ret) {
-    throw new Error(`Wrong searchText: ${searchText}`);
+    throw new Error(`Wrong findText: ${findText}`);
   }
 
   const flags = ret[1];
-  const pattern = ret[2];
+  const find = ret[2];
 
-  return new RegExp(pattern, flags);
+  return { flags, find };
 }
 
 async function replaceText(
   registry: IDependencyRegistry,
   editor: vscode.TextEditor,
   edit: vscode.TextEditorEdit,
-  searchAndReplace: Map<string, string>
+  flags: string,
+  findAndReplace: Map<string, string>
 ) {
-  const config = registry.configuration;
-
   const text = getSelectedOrAll(editor);
 
   let textNew = text;
-  for (let [toSearch, toReplace] of searchAndReplace) {
-    const re = constructSearchRegExp(config, toSearch);
+  for (let [toSearch, toReplace] of findAndReplace) {
+    const { flags: flagsCur, find } = getFlagsAndFind(toSearch, flags);
+    const re = new RegExp(find, flagsCur);
     textNew = textNew.replace(re, toReplace);
   }
 
@@ -259,38 +268,40 @@ async function filterText(
   registry: IDependencyRegistry,
   editor: vscode.TextEditor,
   edit: vscode.TextEditorEdit,
-  searchText: string,
+  flags: string,
+  find: string,
   outputType: OutputType
 ) {
-  const config = registry.configuration;
-
-  const re = constructSearchRegExp(config, searchText);
+  const re = new RegExp(find, flags);
 
   const founds: string[] = [];
 
   const text = getSelectedOrAll(editor);
 
-  for (let m = re.exec(text); (m = re.exec(text)); m !== null) {
-    let text = "";
+  let m: RegExpExecArray | null = null;
+  while ((m = re.exec(text)) !== null) {
+    let found = "";
     switch (outputType) {
       case "matched":
       case "group":
         if (outputType === "matched") {
-          text = m[0];
+          found = m[0];
         } else if (outputType === "group") {
-          text = m.slice(1, m.length).join("\n");
+          found = m.slice(1, m.length).join("\n");
         }
         break;
       default:
         throw new Error(`Wrong outputType: ${outputType}`);
     }
 
-    founds.push(text);
+    founds.push(found);
+
+    if (!re.flags.includes("g")) break;
   }
 
   const doc = await vscode.workspace.openTextDocument({
     language: editor.document.languageId,
-    content: founds.join(""),
+    content: founds.join("\n"),
   });
   await vscode.window.showTextDocument(doc);
 }

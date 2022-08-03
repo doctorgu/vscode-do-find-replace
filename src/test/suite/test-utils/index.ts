@@ -63,7 +63,7 @@ export async function withInputBox(
   //
   //const showInputBox = sinon.stub(vscode.window, 'showInputBox');
   //try {
-  //  showInputBox.resolves(searchText);
+  //  showInputBox.resolves(findText);
   //
   //  await cb();
   //
@@ -129,34 +129,34 @@ export type FindReplaceCommand =
  */
 export async function invokeFindReplace(
   command: FindReplaceCommand,
-  searchText: string | undefined
+  findText: string | undefined
 ): Promise<void>;
 export async function invokeFindReplace(
   command: FindReplaceCommand,
-  searchTextOptions: sinon.SinonMatcher,
-  searchText: string | undefined
+  findTextOptions: sinon.SinonMatcher,
+  findText: string | undefined
 ): Promise<void>;
 export async function invokeFindReplace(
   command: FindReplaceCommand,
-  searchTextOptionsOrSearchText: sinon.SinonMatcher | string | undefined,
-  optionalSearchText?: string | undefined
+  findTextOptionsOrFindText: sinon.SinonMatcher | string | undefined,
+  optionalFindText?: string | undefined
 ): Promise<void> {
-  let searchTextOptions: sinon.SinonMatcher;
-  let searchText: string | undefined;
+  let findTextOptions: sinon.SinonMatcher;
+  let findText: string | undefined;
   if (
-    typeof searchTextOptionsOrSearchText === "string" ||
-    searchTextOptionsOrSearchText == null
+    typeof findTextOptionsOrFindText === "string" ||
+    findTextOptionsOrFindText == null
   ) {
-    searchTextOptions = sinon.match.any;
-    searchText = searchTextOptionsOrSearchText;
+    findTextOptions = sinon.match.any;
+    findText = findTextOptionsOrFindText;
   } else {
-    searchTextOptions = searchTextOptionsOrSearchText;
-    searchText = optionalSearchText;
+    findTextOptions = findTextOptionsOrFindText;
+    findText = optionalFindText;
   }
 
-  await withInputBox(searchTextOptions, searchText, async () => {
+  await withInputBox(findTextOptions, findText, async () => {
     await vscode.commands.executeCommand(command);
-    if (searchText != null) await untilStable();
+    if (findText != null) await untilStable();
   });
 }
 

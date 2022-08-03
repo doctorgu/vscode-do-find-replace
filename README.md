@@ -47,7 +47,7 @@ All of the following commands are available via Ctrl-Shift-P.
 \* Use <kbd>cmd</kbd> instead of <kbd>ctrl</kbd> on Mac
 
 "Regex" commands accept any regular expression valid in JavaScript.
-Use `m` flag if you want to match multiple lines.
+Use `s` (DOTALL) flag if you want to match multiple lines.
 See [MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions) for syntax reference, but
 keep in mind that you need to prefix flag between `(?` and `)` like `(?gs)` and inner part of the regex without the enclosing slashes (`/.../`) like `(?gs)\d+`.
 
