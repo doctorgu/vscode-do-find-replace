@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.1.3]
+
+Added:
+r flag for reverse order when replace list.
+
 ## [1.1.2]
 
 Added:

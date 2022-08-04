@@ -77,6 +77,8 @@ You can prefix flags between `(?` and `)` like `(?gis)`. If not prefixed default
 
 `c`(change): Change key and value. For example, `a:1` means replace `1` with `a`, but means replace `a` with `1` when `c` flag used.
 
+`r`(reverse): Reverse item by 1. descending order of length of key, 2. descending order of key. Target will change to value when `c` flag used.
+
 ## Available settings
 
 | Setting          | Description                                        | Default value |
@@ -101,6 +103,11 @@ To escape `,` or `:`
 
 1. Use doubled value like `,,` or `::`
 2. Use `&comma;` or `&colon;`
+
+File path rule
+
+- Can use relative path (ex: `data/a.txt` to get `a.txt` in `data` folder inside current workspace folder)
+- Can be combined with `+` (ex: `data/a.txt+data/b.txt` to get `a.txt` and `b.txt` in `data` folder)
 
 ### # `findReplace.includeMatched`
 

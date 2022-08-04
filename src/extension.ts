@@ -104,6 +104,7 @@ export function activate(
 function getFindAndReplace(
   isPath: boolean,
   isChange: boolean,
+  isReverse: boolean,
   find: string
 ): Map<string, string> {
   function encode(value: string) {
@@ -132,6 +133,7 @@ function getFindAndReplace(
           !pathCur.includes(":") && !!workspaceFolder
             ? `${workspaceFolder}/${pathCur}`
             : pathCur;
+
         const valueInFile = fs.readFileSync(fullPath, "utf-8");
         toFinds.push(valueInFile);
       }
@@ -156,9 +158,17 @@ function getFindAndReplace(
     }
   }
 
-  // const keyValues = kvList.sort(([a], [b]) => a.localeCompare(b)).reverse();
-  // map = new Map(keyValues as [string, string][]);
-  map = new Map(kvList as [string, string][]);
+  if (!isReverse) {
+    map = new Map(kvList as [string, string][]);
+  } else {
+    const keyValues = kvList
+      .sort(([a], [b]) => {
+        const ret = a.length - b.length;
+        return ret !== 0 ? ret : a.localeCompare(b);
+      })
+      .reverse();
+    map = new Map(keyValues as [string, string][]);
+  }
   return map;
 }
 
@@ -171,7 +181,7 @@ async function promptFindReplace(
   const input = await promptForFindText(registry, editor, outputType);
   if (input == null) return;
 
-  const { flags, isPath, isChange, find } = getFlagsAndFind(input);
+  const { flags, isPath, isChange, isReverse, find } = getFlagsAndFind(input);
 
   if (registry.configuration.get("preserveSearch"))
     registry.searchStorage.set("latestSearch", input);
@@ -179,7 +189,7 @@ async function promptFindReplace(
   if (outputType === "replace") {
     let findAndReplace = new Map<string, string>();
     try {
-      findAndReplace = getFindAndReplace(isPath, isChange, find);
+      findAndReplace = getFindAndReplace(isPath, isChange, isReverse, find);
     } catch (ex: any) {
       vscode.window.showErrorMessage(`${ex?.name}, ${ex?.message}`);
       return;
@@ -242,13 +252,20 @@ function getSelectedOrAll(editor: vscode.TextEditor): string {
 function getFlagsAndFind(
   findText: string,
   defaultFlags = "gm"
-): { flags: string; isPath: boolean; isChange: boolean; find: string } {
-  const re = /^\(\?([gmiyusdpc]+)\)(.+)/;
+): {
+  flags: string;
+  isPath: boolean;
+  isChange: boolean;
+  isReverse: boolean;
+  find: string;
+} {
+  const re = /^\(\?([gmiyusdpcr]+)\)(.+)/;
   if (!re.test(findText)) {
     return {
       flags: defaultFlags,
       isPath: false,
       isChange: false,
+      isReverse: false,
       find: findText,
     };
   }
@@ -272,9 +289,15 @@ function getFlagsAndFind(
     isChange = true;
   }
 
+  let isReverse = false;
+  if (flags.includes("r")) {
+    flags = flags.replace("r", "");
+    isReverse = true;
+  }
+
   const find = ret[2];
 
-  return { flags, isPath, isChange, find };
+  return { flags, isPath, isChange, isReverse, find };
 }
 
 async function replaceText(
