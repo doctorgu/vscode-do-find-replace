@@ -25,6 +25,20 @@ export function escapeRegexp(s: string): string {
   return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
 }
 
+export function testWildcardFileName(
+  pattern: string,
+  fileName: string,
+  ignoreCase: boolean = true
+): boolean {
+  // escape except star(*) and question(?), * -> .*, ? -> .?
+  const pattern2 = pattern
+    .replace(/[-\/\\^$+.()|[\]{}]/g, "\\$&")
+    .replace(/\*/g, ".*")
+    .replace(/\?/g, ".?");
+  const ret = new RegExp(`^${pattern2}$`, ignoreCase ? "i" : "").test(fileName);
+  return ret;
+}
+
 /**
  * Get workspace folder
  *
@@ -37,4 +51,11 @@ export function getWorkspaceFolder(): string {
   }
 
   return "";
+}
+
+export function getFolderFile(path: string): { folder: string; file: string } {
+  const ret = /(.+[\\/])(.+)/.exec(path);
+  if (!ret) return { folder: "", file: path };
+
+  return { folder: ret[1], file: ret[2] };
 }

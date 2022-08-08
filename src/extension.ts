@@ -1,7 +1,14 @@
 import vscode from "vscode";
 import fs from "fs";
+import path from "path";
 
-import { escapeRegexp, getWorkspaceFolder, catchErrors } from "./utils";
+import {
+  escapeRegexp,
+  getWorkspaceFolder,
+  getFolderFile,
+  testWildcardFileName,
+  catchErrors,
+} from "./utils";
 import {
   IDependencyRegistry,
   ExtensionSettings,
@@ -101,12 +108,7 @@ export function activate(
   );
 }
 
-function getFindAndReplace(
-  isPath: boolean,
-  isChange: boolean,
-  isReverse: boolean,
-  find: string
-): Map<string, string> {
+function getFindAndReplace(isPath: boolean, find: string): Map<string, string> {
   function encode(value: string) {
     return value.replace(/,,/g, "&comma;").replace(/::/g, "&colon;");
   }
@@ -126,16 +128,24 @@ function getFindAndReplace(
       const workspaceFolder = getWorkspaceFolder();
 
       const toFinds: string[] = [];
-      const paths = toFind.split("+");
-      for (let i = 0; i < paths.length; i += 1) {
-        const pathCur = paths[i];
-        const fullPath =
-          !pathCur.includes(":") && !!workspaceFolder
-            ? `${workspaceFolder}/${pathCur}`
-            : pathCur;
+      const pathsPlus = toFind.split("+");
+      for (let i = 0; i < pathsPlus.length; i += 1) {
+        const pathPlusCur = pathsPlus[i];
+        const fullPathPlus =
+          !pathPlusCur.includes(":") && !!workspaceFolder
+            ? path.resolve(workspaceFolder, pathPlusCur)
+            : pathPlusCur;
 
-        const valueInFile = fs.readFileSync(fullPath, "utf-8");
-        toFinds.push(valueInFile);
+        const { folder, file: pattern } = getFolderFile(fullPathPlus);
+        const fileNames = fs.readdirSync(folder);
+        for (let j = 0; j < fileNames.length; j += 1) {
+          const fileNameCur = fileNames[j];
+          const fullPathCur = path.resolve(folder, fileNameCur);
+          if (testWildcardFileName(pattern, fileNameCur, true)) {
+            const valueInFile = fs.readFileSync(fullPathCur, "utf-8");
+            toFinds.push(valueInFile);
+          }
+        }
       }
       toFind = toFinds.join("\n");
 
@@ -145,7 +155,7 @@ function getFindAndReplace(
     }
   }
 
-  const kvList = [];
+  const kvList: [string, string][] = [];
   const value = encode(toFind);
   const rows = value.split(rowDelim);
   for (let rw = 0; rw < rows.length; rw += 1) {
@@ -153,23 +163,11 @@ function getFindAndReplace(
     if (k && v) {
       const key = decode(k);
       const value = decode(v);
-      const kv = !isChange ? [key, value] : [value, key];
-      kvList.push(kv);
+      kvList.push([key, value]);
     }
   }
 
-  if (!isReverse) {
-    map = new Map(kvList as [string, string][]);
-  } else {
-    const keyValues = kvList
-      .sort(([a], [b]) => {
-        const ret = a.length - b.length;
-        return ret !== 0 ? ret : a.localeCompare(b);
-      })
-      .reverse();
-    map = new Map(keyValues as [string, string][]);
-  }
-  return map;
+  return new Map(kvList);
 }
 
 async function promptFindReplace(
@@ -181,7 +179,7 @@ async function promptFindReplace(
   const input = await promptForFindText(registry, editor, outputType);
   if (input == null) return;
 
-  const { flags, isPath, isChange, isReverse, find } = getFlagsAndFind(input);
+  const { flags, isPath, find } = getFlagsAndFind(registry, input);
 
   if (registry.configuration.get("preserveSearch"))
     registry.searchStorage.set("latestSearch", input);
@@ -189,7 +187,7 @@ async function promptFindReplace(
   if (outputType === "replace") {
     let findAndReplace = new Map<string, string>();
     try {
-      findAndReplace = getFindAndReplace(isPath, isChange, isReverse, find);
+      findAndReplace = getFindAndReplace(isPath, find);
     } catch (ex: any) {
       vscode.window.showErrorMessage(`${ex?.name}, ${ex?.message}`);
       return;
@@ -214,20 +212,22 @@ function promptForFindText(
   editor: vscode.TextEditor,
   outputType: OutputType
 ): Thenable<string | undefined> {
+  const defaultFlags = registry.configuration.get("defaultFlags");
   let prompt = "";
   if (outputType === "replace") {
-    prompt = `List of Search and replace. escape: ',,' for ',', '::' for ':', p: path, c: change k:v to v:k`;
+    prompt = `List of Search and replace. escape: ',,' for ',', '::' for ':', p: path, c: change(k:v to v:k), w: word`;
   } else {
     prompt = `Filter ${
       (outputType === "matched" && "matching") ||
       (outputType === "group" && "matching group")
     }: `;
   }
+  prompt += ` (Using '(?${defaultFlags})' flags if not specified)`;
 
   let findText =
     (registry.configuration.get("preserveSearch") &&
       registry.searchStorage.get("latestSearch")) ||
-    "(?gm)";
+    "";
 
   return vscode.window.showInputBox({
     prompt,
@@ -250,54 +250,53 @@ function getSelectedOrAll(editor: vscode.TextEditor): string {
 }
 
 function getFlagsAndFind(
+  registry: IDependencyRegistry,
   findText: string,
-  defaultFlags = "gm"
+  flagsDefault: string = ""
 ): {
   flags: string;
+  flagsRegOnly: string;
   isPath: boolean;
   isChange: boolean;
-  isReverse: boolean;
+  isWord: boolean;
   find: string;
 } {
-  const re = /^\(\?([gmiyusdpcr]+)\)(.+)/;
+  const re = /^\(\?([gmiyusdpcw]+)\)(.+)/;
+
+  let flags = "";
+  let flagsRegOnly = "";
+  let find = "";
+
   if (!re.test(findText)) {
-    return {
-      flags: defaultFlags,
-      isPath: false,
-      isChange: false,
-      isReverse: false,
-      find: findText,
-    };
+    flags = flagsDefault || registry.configuration.get("defaultFlags") || "gm";
+    flagsRegOnly = flags;
+    find = findText;
+  } else {
+    const ret = re.exec(findText) as RegExpExecArray;
+    flags = ret[1];
+    flagsRegOnly = flags;
+    find = ret[2];
   }
-
-  const ret = re.exec(findText);
-  if (!ret) {
-    throw new Error(`Wrong findText: ${findText}`);
-  }
-
-  let flags = ret[1];
 
   let isPath = false;
-  if (flags.includes("p")) {
-    flags = flags.replace("p", "");
+  if (flagsRegOnly.includes("p")) {
+    flagsRegOnly = flagsRegOnly.replace("p", "");
     isPath = true;
   }
 
   let isChange = false;
-  if (flags.includes("c")) {
-    flags = flags.replace("c", "");
+  if (flagsRegOnly.includes("c")) {
+    flagsRegOnly = flagsRegOnly.replace("c", "");
     isChange = true;
   }
 
-  let isReverse = false;
-  if (flags.includes("r")) {
-    flags = flags.replace("r", "");
-    isReverse = true;
+  let isWord = false;
+  if (flagsRegOnly.includes("w")) {
+    flagsRegOnly = flagsRegOnly.replace("w", "");
+    isWord = true;
   }
 
-  const find = ret[2];
-
-  return { flags, isPath, isChange, isReverse, find };
+  return { flags, flagsRegOnly, isPath, isChange, isWord, find };
 }
 
 async function replaceText(
@@ -312,16 +311,27 @@ async function replaceText(
   let textNew = text;
   for (let [toSearch, toReplace] of findAndReplace) {
     const {
-      flags: flagsCur,
+      flagsRegOnly: flagsCur,
       isChange,
+      isWord,
       find,
-    } = getFlagsAndFind(toSearch, flags);
+    } = getFlagsAndFind(registry, toSearch, flags);
+
+    const boundary = `[\\s,.:;"']`;
+    const prefix = `(?<=${boundary}|^)`;
+    const postfix = `(?=${boundary}|$)`;
 
     if (!isChange) {
-      const re = new RegExp(find, flagsCur);
+      const re = new RegExp(
+        isWord ? `${prefix}${find}${postfix}` : find,
+        flagsCur
+      );
       textNew = textNew.replace(re, toReplace);
     } else {
-      const re = new RegExp(toReplace, flagsCur);
+      const re = new RegExp(
+        isWord ? `${prefix}${toReplace}${postfix}` : toReplace,
+        flagsCur
+      );
       textNew = textNew.replace(re, find);
     }
   }

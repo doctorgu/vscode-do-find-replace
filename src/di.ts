@@ -5,6 +5,7 @@ import { IStorage, GivenStorage, VscodeGlobalStorage } from "./storage";
 
 export interface ExtensionSettings {
   preserveSearch: boolean;
+  defaultFlags: string;
 }
 
 export interface SavedSearch {
@@ -23,6 +24,7 @@ export interface IDependencyRegistry {
 // IMPORTANT: Keep this in sync with package.json
 export const DEFAULT_SETTINGS: Readonly<ExtensionSettings> = {
   preserveSearch: true,
+  defaultFlags: "gm",
 };
 
 /* istanbul ignore next */

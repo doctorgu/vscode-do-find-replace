@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.1.4]
+
+Added:
+defaultFlags configuration.
+Wild card support in file name when p flag used in replace list. ('\*' to '.\*', '?' to '.?')
+w flag for word when replace list to prevent replace again case.
+
+Removed:
+r flag for reverse order when replace list because it cannot solve all problem for replacing again.
+
 ## [1.1.3]
 
 Added:

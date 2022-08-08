@@ -51,8 +51,10 @@ class TestDependencyRegistry implements IDependencyRegistry {
       if (settings.hasOwnProperty(_key)) {
         const key = _key as keyof ExtensionSettings;
         const value = settings[key];
-        this.fakeSettings[key] =
-          value !== undefined ? value : DEFAULT_SETTINGS[key];
+        if (key === "preserveSearch")
+          this.fakeSettings.preserveSearch = value as boolean;
+        else if (key === "defaultFlags")
+          this.fakeSettings.defaultFlags = value as string;
       }
   }
 }
