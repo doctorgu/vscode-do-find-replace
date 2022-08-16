@@ -1,4 +1,4 @@
-import vscode from "vscode";
+import vscode from 'vscode';
 
 /**
  * Wraps the given function so that each invocation is executed inside a try-catch block.
@@ -22,7 +22,7 @@ export function catchErrors<T extends (...args: any[]) => void>(fn: T): T {
  * https://stackoverflow.com/a/3561711/675333
  */
 export function escapeRegexp(s: string): string {
-  return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
+  return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
 }
 
 export function testWildcardFileName(
@@ -32,10 +32,10 @@ export function testWildcardFileName(
 ): boolean {
   // escape except star(*) and question(?), * -> .*, ? -> .?
   const pattern2 = pattern
-    .replace(/[-\/\\^$+.()|[\]{}]/g, "\\$&")
-    .replace(/\*/g, ".*")
-    .replace(/\?/g, ".?");
-  const ret = new RegExp(`^${pattern2}$`, ignoreCase ? "i" : "").test(fileName);
+    .replace(/[-\/\\^$+.()|[\]{}]/g, '\\$&')
+    .replace(/\*/g, '.*')
+    .replace(/\?/g, '.?');
+  const ret = new RegExp(`^${pattern2}$`, ignoreCase ? 'i' : '').test(fileName);
   return ret;
 }
 
@@ -47,15 +47,15 @@ export function testWildcardFileName(
 export function getWorkspaceFolder(): string {
   if (vscode.workspace.workspaceFolders !== undefined) {
     const path = vscode.workspace.workspaceFolders[0].uri.path;
-    return path.startsWith("/") ? path.substr(1) : path;
+    return path.startsWith('/') ? path.substr(1) : path;
   }
 
-  return "";
+  return '';
 }
 
 export function getFolderFile(path: string): { folder: string; file: string } {
   const ret = /(.+[\\/])(.+)/.exec(path);
-  if (!ret) return { folder: "", file: path };
+  if (!ret) return { folder: '', file: path };
 
   return { folder: ret[1], file: ret[2] };
 }
