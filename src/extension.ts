@@ -235,7 +235,7 @@ function promptForFindText(
   });
 }
 
-function getSelectedOrAll(editor: vscode.TextEditor): string {
+function getSelectedOrAllRnToN(editor: vscode.TextEditor): string {
   let text = editor.document.getText(editor.selection);
   if (!text) {
     const firstLine = editor.document.lineAt(0);
@@ -246,7 +246,8 @@ function getSelectedOrAll(editor: vscode.TextEditor): string {
     );
     text = editor.document.getText(textRange);
   }
-  return text;
+
+  return text.replace(/\r\n/g, '\n');
 }
 
 function getFlagsAndFind(
@@ -306,7 +307,7 @@ async function replaceText(
   flags: string,
   findAndReplace: Map<string, string>
 ) {
-  const text = getSelectedOrAll(editor);
+  const text = getSelectedOrAllRnToN(editor);
 
   let textNew = text;
   for (let [toSearch, toReplace] of findAndReplace) {
@@ -355,10 +356,15 @@ async function filterText(
 
   const founds: string[] = [];
 
-  const text = getSelectedOrAll(editor);
+  const text = getSelectedOrAllRnToN(editor);
 
   let m: RegExpExecArray | null = null;
   while ((m = re.exec(text)) !== null) {
+    // This is necessary to avoid infinite loops with zero-width matches
+    if (m.index === re.lastIndex) {
+      re.lastIndex++;
+    }
+
     let found = '';
     switch (outputType) {
       case 'matched':
