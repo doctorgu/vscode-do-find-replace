@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.1.6]
+
+Added:
+defaultBoundary setting for word boundary.
+
 ## [1.1.5]
 
 Fixed:

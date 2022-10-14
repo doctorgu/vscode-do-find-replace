@@ -3,7 +3,7 @@
   "displayName": "Do Find Replace",
   "description": "Output regular expression matched or replaced text",
   "icon": "doc/logo.png",
-  "version": "1.1.5",
+  "version": "1.1.6",
   "publisher": "doctorgu",
   "repository": {
     "type": "git",
@@ -69,6 +69,11 @@
           "type": "string",
           "default": "gm",
           "description": "Default flags when you not explicitly prefix flags (ex: (?gm))"
+        },
+        "findReplace.defaultBoundary": {
+          "type": "string",
+          "default": "[\\s,.:;\"'*()]",
+          "description": "Default word boundary when you use 'w'(word) flags"
         }
       }
     }

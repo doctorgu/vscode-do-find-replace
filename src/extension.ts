@@ -318,7 +318,7 @@ async function replaceText(
       find,
     } = getFlagsAndFind(registry, toSearch, flags);
 
-    const boundary = `[\\s,.:;"']`;
+    const boundary = registry.configuration.get('defaultBoundary');
     const prefix = `(?<=${boundary}|^)`;
     const postfix = `(?=${boundary}|$)`;
 

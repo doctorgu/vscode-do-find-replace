@@ -1,11 +1,12 @@
-import vscode from "vscode";
+import vscode from 'vscode';
 
-import { IConfiguration, VscodeWorkspaceConfiguration } from "./configuration";
-import { IStorage, GivenStorage, VscodeGlobalStorage } from "./storage";
+import { IConfiguration, VscodeWorkspaceConfiguration } from './configuration';
+import { IStorage, GivenStorage, VscodeGlobalStorage } from './storage';
 
 export interface ExtensionSettings {
   preserveSearch: boolean;
   defaultFlags: string;
+  defaultBoundary: string;
 }
 
 export interface SavedSearch {
@@ -24,16 +25,17 @@ export interface IDependencyRegistry {
 // IMPORTANT: Keep this in sync with package.json
 export const DEFAULT_SETTINGS: Readonly<ExtensionSettings> = {
   preserveSearch: true,
-  defaultFlags: "gm",
+  defaultFlags: 'gm',
+  defaultBoundary: '[\\s,.:;"\'*()]',
 };
 
 /* istanbul ignore next */
 export class DependencyRegistry implements IDependencyRegistry {
-  private static SEARCH_STORAGE = new GivenStorage({ latestSearch: "" });
+  private static SEARCH_STORAGE = new GivenStorage({ latestSearch: '' });
 
   // @override
   readonly configuration = new VscodeWorkspaceConfiguration(
-    vscode.workspace.getConfiguration("findReplace"),
+    vscode.workspace.getConfiguration('findReplace'),
     DEFAULT_SETTINGS
   );
 
@@ -44,7 +46,7 @@ export class DependencyRegistry implements IDependencyRegistry {
 
   constructor(context: vscode.ExtensionContext) {
     this.contextStorage = new VscodeGlobalStorage(context.globalState, {
-      latestContext: "",
+      latestContext: '',
     });
   }
 }

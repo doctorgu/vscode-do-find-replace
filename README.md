@@ -77,14 +77,15 @@ You can prefix flags between `(?` and `)` like `(?gis)`. If not prefixed default
 
 `c`(change): Change key and value. For example, `a:1` means replace `1` with `a`, but means replace `a` with `1` when `c` flag used.
 
-`w`(word): Find word only by enclosing find value with `[\s,.:;"']` to prevent replace again case. Target will change to value when `c` flag used.
+`w`(word): Find word only by enclosing find value with `defaultBoundary` of setting to prevent replace again case. Target will change to value when `c` flag used.
 
 ## Available settings
 
-| Setting          | Description                                        | Default value |
-| ---------------- | -------------------------------------------------- | ------------- |
-| `preserveSearch` | Tells the extension to preserve the search string. | `true`        |
-| `defaultFlags`   | Tells the extension to preserve the default flags. | `gm`          |
+| Setting           | Description                                                      | Default value |
+| ----------------- | ---------------------------------------------------------------- | ------------- |
+| `preserveSearch`  | Tells the extension to preserve the search string.               | `true`        |
+| `defaultFlags`    | Tells the extension to preserve the default flags.               | `gm`          |
+| `defaultBoundary` | Tells the extension to preserve the default word boundary flags. | `gm`          |
 
 If you are using Settings UI, you will find these settings under "Find Replace" section.
 
