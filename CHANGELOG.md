@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.1.5]
+
+Fixed:
+Infinite loops with zero-width matches.
+
 ## [1.1.4]
 
 Added:
