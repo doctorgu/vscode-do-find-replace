@@ -16,7 +16,7 @@
   "categories": [
     "Other"
   ],
-
+  "activationEvents": [],
   "main": "./out/extension",
   "contributes": {
     "commands": [
