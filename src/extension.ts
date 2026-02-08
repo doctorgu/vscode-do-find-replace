@@ -3,7 +3,6 @@ import fs from 'fs';
 import path from 'path';
 
 import {
-  escapeRegexp,
   getWorkspaceFolder,
   getFolderFile,
   testWildcardFileName,
@@ -11,15 +10,14 @@ import {
 } from './utils';
 import {
   IDependencyRegistry,
-  ExtensionSettings,
   DependencyRegistry,
 } from './di';
-import { IConfiguration } from './configuration';
+
 
 type OutputType = 'matched' | 'group' | 'replace';
 
 interface PromptFindReplaceArgs {
-  output_type?: OutputType;
+  outputType?: OutputType;
 }
 
 interface ReplaceTextArgs {
@@ -28,7 +26,7 @@ interface ReplaceTextArgs {
 }
 
 interface FindTextArgs {
-  output_type?: OutputType;
+  outputType?: OutputType;
   flags: string;
   find: string;
 }
@@ -50,67 +48,36 @@ export function activate(
     vscode.commands.registerTextEditorCommand(
       'findReplace.replaceList',
       catchErrors((editor, edit, args) => {
-        const args_: PromptFindReplaceArgs = {
-          output_type: 'replace',
-        };
-        vscode.commands.executeCommand('findReplace.promptFindReplace', args_);
+        const { outputType = 'replace' } =
+          (args as PromptFindReplaceArgs) || {};
+        const registry = DI.getRegistry(extensionContext);
+        promptFindReplace(registry, editor, edit, outputType).then();
       })
     ),
     vscode.commands.registerTextEditorCommand(
       'findReplace.includeMatched',
       catchErrors((editor, edit, args) => {
-        const args_: PromptFindReplaceArgs = {
-          output_type: 'matched',
-        };
-        vscode.commands.executeCommand('findReplace.promptFindReplace', args_);
+        const { outputType = 'matched' } =
+          (args as PromptFindReplaceArgs) || {};
+        const registry = DI.getRegistry(extensionContext);
+        promptFindReplace(registry, editor, edit, outputType).then();
       })
     ),
     vscode.commands.registerTextEditorCommand(
       'findReplace.includeMatchedGroup',
       catchErrors((editor, edit, args) => {
-        const args_: PromptFindReplaceArgs = {
-          output_type: 'group',
-        };
-        vscode.commands.executeCommand('findReplace.promptFindReplace', args_);
-      })
-    ),
-
-    vscode.commands.registerTextEditorCommand(
-      'findReplace.promptFindReplace',
-      catchErrors((editor, edit, args) => {
-        const { output_type = 'matched' } =
+        const { outputType = 'group' } =
           (args as PromptFindReplaceArgs) || {};
         const registry = DI.getRegistry(extensionContext);
-        promptFindReplace(registry, editor, edit, output_type).then();
+        promptFindReplace(registry, editor, edit, outputType).then();
       })
     ),
-
-    vscode.commands.registerTextEditorCommand(
-      'findReplace.replaceText',
-      catchErrors((editor, edit, args) => {
-        const { flags, findAndReplace } = (args as ReplaceTextArgs) || {};
-        const registry = DI.getRegistry(extensionContext);
-        replaceText(registry, editor, edit, flags, findAndReplace);
-      })
-    ),
-    vscode.commands.registerTextEditorCommand(
-      'findReplace.filterText',
-      catchErrors((editor, edit, args) => {
-        const {
-          flags,
-          find,
-          output_type = 'matched',
-        } = (args as FindTextArgs) || {};
-        const registry = DI.getRegistry(extensionContext);
-        filterText(registry, editor, edit, flags, find, output_type);
-      })
-    )
   );
 }
 
 function getFindAndReplace(isPath: boolean, find: string): Map<string, string> {
   function encode(value: string) {
-    return value.replace(/,,/g, '&comma;').replace(/::/g, '&colon;');
+    return value.replace(/\\,/g, '&comma;').replace(/\\:/g, '&colon;');
   }
   function decode(value: string) {
     return value.replace(/&comma;/g, ',').replace(/&colon;/g, ':');
@@ -196,14 +163,14 @@ async function promptFindReplace(
       flags,
       findAndReplace,
     };
-    vscode.commands.executeCommand('findReplace.replaceText', args);
+    replaceText(registry, editor, edit, flags, findAndReplace).then();
   } else {
     const args: FindTextArgs = {
-      output_type: outputType,
+      outputType: outputType,
       flags,
       find,
     };
-    vscode.commands.executeCommand('findReplace.filterText', args);
+    filterText(registry, editor, edit, flags, find, outputType).then();
   }
 }
 
@@ -215,7 +182,7 @@ function promptForFindText(
   const defaultFlags = registry.configuration.get('defaultFlags');
   let prompt = '';
   if (outputType === 'replace') {
-    prompt = `List of Search and replace. escape: ',,' for ',', '::' for ':', p: path, c: change(k:v to v:k), w: word`;
+    prompt = `List of Search and replace. escape: '\\,' for ',', '\\:' for ':', p: path, c: change(k:v to v:k), w: word`;
   } else {
     prompt = `Filter ${
       (outputType === 'matched' && 'matching') ||

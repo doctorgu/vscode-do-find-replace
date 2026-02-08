@@ -2,6 +2,8 @@
 
 Fork from <https://github.com/earshinov/vscode-filter-lines>
 
+![animation](./doc/animation.gif)
+
 This extension allows you
 
 1. To filter text of the current document by a regular expression and output matched or matched group(s).
@@ -44,7 +46,7 @@ All of the following commands are available via Ctrl-Shift-P.
 | Find Replace: Include Matched       | Ctrl-K Ctrl-M \*   |
 | Find Replace: Include Matched Group | Ctrl-K Ctrl-G \*   |
 
-\* Use <kbd>cmd</kbd> instead of <kbd>ctrl</kbd> on Mac
+\* Use `cmd` instead of `ctrl` on Mac
 
 "Regex" commands accept any regular expression valid in JavaScript.
 Use `s` (DOTALL) flag if you want to match multiple lines.
@@ -103,7 +105,7 @@ For example `1:11,2:22` must be replaced to `1:11\n2:22` or `1:11\r\n2:22` when 
 
 To escape `,` or `:`
 
-1. Use doubled value like `,,` or `::`
+1. Use counter slash like `\,` or `\:`
 2. Use `&comma;` or `&colon;`
 
 File path rule

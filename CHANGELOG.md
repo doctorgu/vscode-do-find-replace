@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.7]
+
+Fixed:
+Changed escape string from doubled character(,, or ::) to counter slash(\, or \:) in Replace List.
+Removed unused source code.
+Captured for README.md.
+
 ## [1.1.6]
 
 Added:
@@ -70,10 +77,10 @@ createNewTab
 
 ## [1.0.0]
 
-Fork from https://github.com/earshinov/vscode-filter-lines
+Fork from <https://github.com/earshinov/vscode-filter-lines>
 
 Removed:
 with String, Exclude Lines, Context, search_type
 
 Added:
-Matched, Matched Group, output_type
+Matched, Matched Group, outputType

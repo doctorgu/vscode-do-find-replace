@@ -3,7 +3,7 @@
   "displayName": "Do Find Replace",
   "description": "Output regular expression matched or replaced text",
   "icon": "doc/logo.png",
-  "version": "1.1.6",
+  "version": "1.1.7",
   "publisher": "doctorgu",
   "repository": {
     "type": "git",
@@ -11,19 +11,12 @@
   },
   "license": "MIT",
   "engines": {
-    "vscode": "^1.24.0"
+    "vscode": "^1.75.0"
   },
   "categories": [
     "Other"
   ],
-  "activationEvents": [
-    "onCommand:findReplace.replaceList",
-    "onCommand:findReplace.includeMatched",
-    "onCommand:findReplace.includeMatchedGroup",
-    "onCommand:findReplace.promptFindReplace",
-    "onCommand:findReplace.replaceText",
-    "onCommand:findReplace.filterText"
-  ],
+
   "main": "./out/extension",
   "contributes": {
     "commands": [
